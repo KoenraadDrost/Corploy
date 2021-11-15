@@ -8,18 +8,21 @@ namespace CorployGame.entity
 {
     abstract class MovingEntity : BaseGameEntity
     {
-        public Vector2D Velocity { get; set; }
+        public Vector2D Velocity { get; set; } // Current speed and direction.
         public Vector2D Heading { get; set; }
         public Vector2D Side { get; set; }
         public float Mass { get; set; }
         public float MaxSpeed { get; set; }
+        public double MaxForce { get; set; }
+        public double MaxTurnRate { get; set; }
 
-        public SteeringBehaviour SB { get; set; }
+        public Vector2D SteeringForce { get; set; }
 
         public MovingEntity(Vector2D pos, World w, Texture2D t) : base(pos, w, t)
         {
             Mass = 30;
             MaxSpeed = 150;
+            MaxForce = 300;
             Velocity = new Vector2D();
             Heading = new Vector2D();
             Side = new Vector2D();
@@ -27,14 +30,11 @@ namespace CorployGame.entity
 
         public override void Update(float timeElapsed)
         {
-            // calculate the combined force from each steering behavior in the vehicle's list
-            Vector2D steeringForce = SB.Calculate();
-
             // acceleration = force / mass
-            Vector2D acceleration = steeringForce.divide(Mass);
+            Vector2D acceleration = SteeringForce.divide(Mass);
 
             // update velocity
-            Velocity.Add(acceleration.Multiply(timeElapsed));
+            Velocity += acceleration * timeElapsed;
 
             // make sure vehicle does not exceed maximum velocity
             Velocity.truncate(MaxSpeed);
@@ -49,6 +49,9 @@ namespace CorployGame.entity
 
                 Side = Heading.Perpendicular();
             }
+
+            // TODO: Remove print statement later.
+            //Console.WriteLine($"speed:{acceleration}");
         }
 
         public override string ToString()

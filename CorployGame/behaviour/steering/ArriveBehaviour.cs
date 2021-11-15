@@ -18,11 +18,7 @@ namespace CorployGame.behaviour.steering
         // Universal constant factor to calculate all deceleration with.
         double DecelerationFactor = 0.3;
 
-        public ArriveBehaviour(MovingEntity me) : this(me, DecelerationSpeed.normal)
-        {
-
-        }
-
+        public ArriveBehaviour(MovingEntity me) : this(me, DecelerationSpeed.normal) { }
         public ArriveBehaviour(MovingEntity me, DecelerationSpeed ds) : base(me)
         {
             DecelerationSpd = ds;
@@ -42,7 +38,7 @@ namespace CorployGame.behaviour.steering
                 double speed = dist / ( (double)DecelerationSpd * DecelerationFactor);
 
                 // Limit speed by moving entity 's maxspeed.
-                speed %= ME.MaxSpeed;
+                speed = Math.Min(speed, ME.MaxSpeed);
 
                 Vector2D desiredVelocity = toTarget * speed / dist;
 

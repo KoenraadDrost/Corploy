@@ -46,6 +46,11 @@ namespace CorployGame
 
             // TODO: use this.Content to load your game content here
             //winLogotexture = Content.Load<Texture2D>("WindesheimLogo");
+
+            // TODO: Replacement for Content loader from monogame
+            //FileStream fileStream = new FileStream("Content/sprites/sprite_atlas.png", FileMode.Open):
+            //Texture2D spriteAtlas = Texture2D.FromStream(graphicsDevice, fileStream);
+            //fileStream.Dispose();
         }
 
         protected override void Update(GameTime gameTime)
@@ -73,6 +78,7 @@ namespace CorployGame
             if (mstate.LeftButton == ButtonState.Pressed && oldMState.LeftButton == ButtonState.Released)
             {
                 world.Target.Pos = new Vector2D(mstate.X, mstate.Y);
+                world.entities[0].SBS.SetTarget(world.Target.Pos);
             }
 
             // Update World
@@ -115,6 +121,11 @@ namespace CorployGame
                 _spriteBatch.Draw(me.Texture, new Vector2((float)me.Pos.X, (float)me.Pos.Y), Color.White);
                 _spriteBatch.End();
             }
+
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(world.Target.Texture, new Vector2((float)world.Target.Pos.X, (float)world.Target.Pos.Y), Color.White);
+            _spriteBatch.End();
+
 
             base.Draw(gameTime);
         }
