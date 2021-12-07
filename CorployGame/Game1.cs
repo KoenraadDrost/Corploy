@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace CorployGame
 {
@@ -19,6 +20,8 @@ namespace CorployGame
 
         public Game1()
         {
+            IsFixedTimeStep = false;
+            TargetElapsedTime = TimeSpan.FromSeconds(0.016666);
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
@@ -78,7 +81,12 @@ namespace CorployGame
             if (mstate.LeftButton == ButtonState.Pressed && oldMState.LeftButton == ButtonState.Released)
             {
                 world.Target.Pos = new Vector2D(mstate.X, mstate.Y);
-                world.entities[0].SBS.SetTarget(world.Target.Pos);
+
+                // TODO: Find better way for target update.
+                if (world.entities[0] is Vehicle)
+                {
+                    ((Vehicle)world.entities[0] ).SBS.SetTarget(world.Target.Pos);
+                }
             }
 
             // Update World
@@ -110,20 +118,24 @@ namespace CorployGame
             //);
             //_spriteBatch.End();
 
-            foreach (MovingEntity me in world.entities)
-            {
-                //me.SB = new SeekBehaviour(me);
-                //me.SB = new FleeBehaviour(me);
-                //me.SB = new ArriveBehaviour(me);
-                //me.SB = new WanderBehaviour(me);
-                //me.Update(0.8f);
-                _spriteBatch.Begin();
-                _spriteBatch.Draw(me.Texture, new Vector2((float)me.Pos.X, (float)me.Pos.Y), Color.White);
-                _spriteBatch.End();
-            }
 
+            // TODO: Remove excesive comments.
             _spriteBatch.Begin();
-            _spriteBatch.Draw(world.Target.Texture, new Vector2((float)world.Target.Pos.X, (float)world.Target.Pos.Y), Color.White);
+
+            //_spriteBatch.Draw(world.Target.Texture, new Vector2((float) world.Target.Pos.X, (float)world.Target.Pos.Y), Color.White);
+
+            //foreach (MovingEntity me in world.entities)
+            //{
+            //    _spriteBatch.Draw(me.Texture, me.GetDrawCoordinate(), Color.White);
+            //}
+
+            //foreach (Obstacle obst in world.obstacles)
+            //{
+            //    _spriteBatch.Draw(obst.Texture, obst.GetDrawCoordinate(), Color.White);
+            //}
+
+            world.Draw(_spriteBatch, gameTime);
+
             _spriteBatch.End();
 
 

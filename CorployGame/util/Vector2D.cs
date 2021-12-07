@@ -34,6 +34,15 @@ namespace CorployGame
             return Math.Sqrt(Length());
         }
 
+        public float GetAngleDegrees()
+        {
+            double radianAngle = Math.Atan2( Y, X );
+            double degreeAngle = radianAngle * (180 / Math.PI);
+            float degrees = (float)degreeAngle;
+
+            return degrees;
+        }
+
         public Vector2D Add(Vector2D v)
         {
             this.X += v.X;
@@ -69,8 +78,15 @@ namespace CorployGame
             return this;
         }
 
-        public Vector2D Perpendicular()
+        public Vector2D PerpendicularClockwise()
         {
+            // Vector(4,7) becomes (7,-4)
+            return new Vector2D(Y, -X);
+        }
+
+        public Vector2D PerpendicularCounterClockwise()
+        {
+            // Vector(-8, 3) becomes (-3, -8)
             return new Vector2D(-Y, X);
         }
 
