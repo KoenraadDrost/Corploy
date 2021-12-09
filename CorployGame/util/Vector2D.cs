@@ -34,6 +34,12 @@ namespace CorployGame
             return Math.Sqrt(Length());
         }
 
+        /// <summary>
+        /// Gets angle in degrees relative to horizon hine pointA( X = 0, Y = 0 ) => pointB( X = this.X , Y = 0)
+        /// Points below the horizon line are positive angles.( eg. 0.0 degrees to 180.0 degrees ).
+        /// Points above the horizon line are negative angles.( eg. -0.1 degrees to -180.0 degrees ).
+        /// </summary>
+        /// <returns></returns>
         public float GetAngleDegrees()
         {
             double radianAngle = Math.Atan2( Y, X );
