@@ -96,6 +96,10 @@ namespace CorployGame
             o1.UpdateTexture();
             obstacles.Add(o1);
 
+            // TODO: Remove test
+            Square s1 = new Square(20);
+            Console.WriteLine($"Square Write Test: {s1}");
+
         }
 
         /// <summary>

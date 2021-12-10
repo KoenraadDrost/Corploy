@@ -22,6 +22,8 @@ namespace CorployGame
             Y = y;
         }
 
+        public Vector2D(Vector2D v) : this(v.X, v.Y) { }
+
         public double Length()
         {
             double xPow = Math.Pow(X, 2);

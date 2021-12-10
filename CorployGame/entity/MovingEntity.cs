@@ -12,7 +12,7 @@ namespace CorployGame.entity
         public Vector2D Velocity { get; set; } // Current length of travel and direction represented by a x.y coördinate relative to entity position. Value is dependend on elapsed time.
         public Vector2D Heading { get; set; }
         public Vector2D Side { get; set; }
-        public float Orientation { get; set; }
+        public float Orientation { get; set; } // Angle of heading relative to horizon
         public float Mass { get; set; }
         public float Speed { get; set; } // Velocity length per second since last update. ( pixels/second )
         public float MaxSpeed { get; set; }
@@ -45,11 +45,7 @@ namespace CorployGame.entity
             // make sure vehicle does not exceed maximum velocity
             Velocity.truncate(MaxSpeed);
 
-            //TODO: Remove later
-            //Console.WriteLine($"velocity length = {Velocity.Length()}");
-
             // update the position
-            //Pos = Pos.Add(Velocity.Multiply(timeElapsed));
             Pos += Velocity * timeElapsed;
 
             // update the heading if velocity is greater than 0.
@@ -58,14 +54,10 @@ namespace CorployGame.entity
                 Heading = Velocity.Normalize();
                 Side = Heading.PerpendicularClockwise();
                 Orientation = Velocity.GetAngleDegrees();
-                //Orientation = 100;
             }
 
             // Update Speed (Velocity.Length/second)
             Speed = (float)Velocity.Length() * (1 / timeElapsed);
-
-            // TODO: Remove print statement later.
-            //Console.WriteLine($"speed:{acceleration}");
         }
 
         public override void Draw(SpriteBatch spriteBatch, GameTime gameTime)

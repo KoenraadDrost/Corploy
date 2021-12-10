@@ -50,10 +50,36 @@ namespace CorployGame.util
 
         public void RotateCorners(float degrees)
         {
-            for(int i = 0; i < 4; i++)
+            Matrix2D rM = Matrix2D.RotateMatrix(degrees);
+
+            for (int i = 0; i < 4; i++)
             {
-                Corners[i] = Matrix2D.RotateMatrix(degrees) * Corners[i];
+                Corners[i] =  rM * Corners[i];
             }
+        }
+
+        public void RotateSquare(float degrees)
+        {
+            Matrix2D rM = Matrix2D.RotateMatrix(degrees);
+            CenterPos = rM * CenterPos;
+            for (int i = 0; i < 4; i++)
+            {
+                Corners[i] = rM * Corners[i];
+            }
+        }
+
+        public void MoveSquare(Vector2D v)
+        {
+            CenterPos += v;
+            for (int i = 0; i < 4; i++)
+            {
+                Corners[i] += v;
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("< C={0} : [TL{1} - TR{2} - BR{3} - BL{4} >", CenterPos, Corners[0], Corners[1], Corners[2], Corners[3]);
         }
 
     }

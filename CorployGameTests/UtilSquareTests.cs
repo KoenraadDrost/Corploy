@@ -98,7 +98,7 @@ namespace CorployGameTests
             Assert.AreEqual(expectedCenterPos.Y, actual.CenterPos.Y);
         }
 
-        public static IEnumerable<TestCaseData> SquareRotateCornersTestCases {
+        public static IEnumerable<TestCaseData> SquareRotateSquareTestCases {
             get {
                 yield return new TestCaseData(new Vector2D(0, 0), 10, 0,
                     new List<Vector2D>{
@@ -123,22 +123,30 @@ namespace CorployGameTests
                     }, new Vector2D(0, 0));
                 yield return new TestCaseData(new Vector2D(0, 0), 10, -45,
                     new List<Vector2D>{
-                        new Vector2D( -(Math.Sqrt(50)), 0 ),     //TopLeft y = square root of (-5^2 + -5^2)
+                        new Vector2D( -(Math.Sqrt(50)), 0 ),   //TopLeft y = square root of (-5^2 + -5^2)
                         new Vector2D( 0, -Math.Sqrt(50) ),     //TopRight
                         new Vector2D( Math.Sqrt(50), 0 ),      //BottomRight
                         new Vector2D( 0, Math.Sqrt(50) ),      //BottomLeft
                     }, new Vector2D(0, 0));
+                yield return new TestCaseData(new Vector2D(10, 10), 10, 45,
+                    new List<Vector2D>{
+                        new Vector2D( 0, Math.Sqrt(50) ),                   //TopLeft y = square root of (5^2 + 5^2)
+                        new Vector2D( Math.Sqrt(50), Math.Sqrt(50) * 2 ),   //TopRight
+                        new Vector2D( 0, Math.Sqrt(50) * 3 ),               //BottomRight
+                        new Vector2D( -Math.Sqrt(50), Math.Sqrt(50) * 2 ),  //BottomLeft
+                    }, new Vector2D(0, Math.Sqrt(50) * 2));
             }
         }
 
-        [TestCaseSource("SquareRotateCornersTestCases")]
-        public void SquareRotateCorners(Vector2D centerPos, double size, float degrees, List<Vector2D> expectedCorners, Vector2D expectedCenterPos)
+        [TestCaseSource("SquareRotateSquareTestCases")]
+        public void SquareRotateSquare(Vector2D centerPos, double size, float degrees, List<Vector2D> expectedCorners, Vector2D expectedCenterPos)
         {
             // Arrange
             Square actual = centerPos == null ? new Square(size) : new Square(centerPos, size);
 
             // Act
-            actual.RotateCorners(degrees);
+            //actual.RotateCorners(degrees);
+            actual.RotateSquare(degrees);
 
             // Assert
             for (int i = 0; i < expectedCorners.Count; i++)
@@ -146,8 +154,8 @@ namespace CorployGameTests
                 Assert.AreEqual( Math.Round(expectedCorners[i].X, 4), Math.Round(actual.Corners[i].X, 4) );
                 Assert.AreEqual( Math.Round(expectedCorners[i].Y, 4), Math.Round(actual.Corners[i].Y, 4) );
             }
-            Assert.AreEqual(expectedCenterPos.X, actual.CenterPos.X);
-            Assert.AreEqual(expectedCenterPos.Y, actual.CenterPos.Y);
+            Assert.AreEqual( Math.Round(expectedCenterPos.X, 4), Math.Round(actual.CenterPos.X, 4) );
+            Assert.AreEqual( Math.Round(expectedCenterPos.Y, 4), Math.Round(actual.CenterPos.Y, 4) );
         }
     }
 }
