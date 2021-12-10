@@ -116,10 +116,17 @@ namespace CorployGameTests
                     }, new Vector2D(5, 5));
                 yield return new TestCaseData(new Vector2D(0, 0), 10, 45,
                     new List<Vector2D>{
-                        new Vector2D( 0, Math.Sqrt(-50) ),     //TopLeft y = square root of (-5^2 + -5^2)
-                        new Vector2D( Math.Sqrt(50), 5 ),      //TopRight
+                        new Vector2D( 0, -Math.Sqrt(50) ),     //TopLeft y = square root of (-5^2 + -5^2)
+                        new Vector2D( Math.Sqrt(50), 0 ),      //TopRight
                         new Vector2D( 0, Math.Sqrt(50) ),      //BottomRight
-                        new Vector2D( Math.Sqrt(-50), 0 ),     //BottomLeft
+                        new Vector2D( -Math.Sqrt(50), 0 ),     //BottomLeft
+                    }, new Vector2D(0, 0));
+                yield return new TestCaseData(new Vector2D(0, 0), 10, -45,
+                    new List<Vector2D>{
+                        new Vector2D( -(Math.Sqrt(50)), 0 ),     //TopLeft y = square root of (-5^2 + -5^2)
+                        new Vector2D( 0, -Math.Sqrt(50) ),     //TopRight
+                        new Vector2D( Math.Sqrt(50), 0 ),      //BottomRight
+                        new Vector2D( 0, Math.Sqrt(50) ),      //BottomLeft
                     }, new Vector2D(0, 0));
             }
         }
@@ -136,8 +143,8 @@ namespace CorployGameTests
             // Assert
             for (int i = 0; i < expectedCorners.Count; i++)
             {
-                Assert.AreEqual(expectedCorners[i].X, actual.Corners[i].X);
-                Assert.AreEqual(expectedCorners[i].Y, actual.Corners[i].Y);
+                Assert.AreEqual( Math.Round(expectedCorners[i].X, 4), Math.Round(actual.Corners[i].X, 4) );
+                Assert.AreEqual( Math.Round(expectedCorners[i].Y, 4), Math.Round(actual.Corners[i].Y, 4) );
             }
             Assert.AreEqual(expectedCenterPos.X, actual.CenterPos.X);
             Assert.AreEqual(expectedCenterPos.Y, actual.CenterPos.Y);
