@@ -108,15 +108,30 @@ namespace CorployGame
         /// <param name="me"></param>
         /// <param name="dBoxLength"></param>
         /// <returns></returns>
-        public List<Square> TagObstaclesInCollisionRange(MovingEntity me, double dBoxLength)
+        public List<Square> TagObstaclesInCollisionRange(Vector2D pos, double dBoxLength)
         {
             List<Square> taggedObstacles = new List<Square>();
 
             for(int i = 0; i < obstacles.Count; i++)
             {
                 // Measure distance between obstacle and moving entity and check if distance is shorter than detection box length.
-                double distance = (obstacles[i].Pos - me.Pos).Length();
+                double distance = (obstacles[i].Pos - pos).Length();
                 if (distance <= dBoxLength) taggedObstacles.Add( new Square(obstacles[i].Pos, Height) ); // Add a copy of obstacle to list, to avoid altering original during calculations.                
+            }
+
+            // Return null if no obstacle in collisionbox
+            return taggedObstacles.Count < 1 ? null : taggedObstacles;
+        }
+
+        public List<Obstacle> TagObstaclesInCollisionRange(MovingEntity me, double dBoxLength)
+        {
+            List<Obstacle> taggedObstacles = new List<Obstacle>();
+
+            for (int i = 0; i < obstacles.Count; i++)
+            {
+                // Measure distance between obstacle and moving entity and check if distance is shorter than detection box length.
+                double distance = (obstacles[i].Pos - me.Pos).Length();
+                if (distance <= dBoxLength) taggedObstacles.Add(new Obstacle(obstacles[i]) ); // Add a copy of obstacle to list, to avoid altering original during calculations.                
             }
 
             // Return null if no obstacle in collisionbox

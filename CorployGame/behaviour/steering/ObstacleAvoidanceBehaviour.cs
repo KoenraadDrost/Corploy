@@ -12,6 +12,10 @@ namespace CorployGame.behaviour.steering
         public double DBoxWidth { get; set; }
         public double Margin { get; set; }
 
+        BaseGameEntity ClosestIntersectingObject;
+        double DistanceToClosestIP; // Closest Intersectingpoint distance.
+        Vector2D LocalPosOfClosestObstacle;
+
         public ObstacleAvoidanceBehaviour(MovingEntity me) : base(me)
         {
             DBoxWidth = me.Texture.Width;
@@ -32,14 +36,24 @@ namespace CorployGame.behaviour.steering
         public override Vector2D Calculate()
         {
             UpdateDBoxLength();
+            ClosestIntersectingObject = null;
+            DistanceToClosestIP = double.MaxValue;
 
-            List<Square> localObstacles = ME.MyWorld.TagObstaclesInCollisionRange(ME, DBoxLength);
+            List<Obstacle> localObstacles = ME.MyWorld.TagObstaclesInCollisionRange(ME, DBoxLength);
             // If there are no local objects to collide with, return blank vector to avoid calculation errors with "NULL".
             if(localObstacles == null || localObstacles.Count < 1) return new Vector2D(0, 0);
 
             Console.WriteLine("detection test1");
 
-            GenerateLocalUniverse(ref localObstacles);
+            Vector2D MePos = GenerateLocalUniverse(ref localObstacles);
+
+            // Determine closest obstacle.
+            for(int i = 0; i < localObstacles.Count; i++)
+            {
+                CheckObstacleCollision(localObstacles[i]);
+            }
+
+            // Calculating the steering force
 
 
             //TODO: Replace with propper vector later.
@@ -80,6 +94,80 @@ namespace CorployGame.behaviour.steering
 
         }
 
+        /// <summary>
+        /// Makes obstacle positions relative to Moving Entity.
+        /// </summary>
+        /// <param name="obstList"></param>
+        private Vector2D GenerateLocalUniverse(ref List<Obstacle> obstList)
+        {
+            Vector2D tempMEpos = new Vector2D(ME.Pos);
+
+            // Rotate all objects in the opposite direction of Moving Entity orientation, so that the orientation is now 0 degrees.
+            Matrix2D rMat = Matrix2D.RotateMatrix(-ME.Orientation);
+            tempMEpos = rMat * tempMEpos;
+
+            for (int i = 0; i < obstList.Count; i++)
+            {
+                obstList[i].Pos = rMat * obstList[i].Pos;
+            }
+            // Move temporary ME position to (x=0, y=0) and move all obstacles with same amount.
+            // As y is already 0, we only need to update all the x-values.
+            for (int i = 0; i < obstList.Count; i++)
+            {
+                obstList[i].Pos.X -= tempMEpos.X;
+            }
+            tempMEpos.X = 0;
+
+            return tempMEpos;
+        }
+
+        private void CheckObstacleCollision (BaseGameEntity obst)
+        {
+            Vector2D obstPos = obst.Pos;
+
+            // If obstacle is behind Moving Entity, ignore.
+            if (obstPos.X <= 0) return;
+
+            // If obstacle is way outside of collisionbox Y-axis, ignore.
+            // 2* margin because it's for both the Moving entity's width and the margin in which it can collide with edge of obstacle.
+            // Square root of both height and width of obstacle to be certain it's outside of range, even if rotated in worst case scenario (45 degrees).
+            // Add 0,01 for minor rounding fluctuations.
+            // Check for both positive and negative Y-axis values.(Below horizon, above horizon)
+            // Simplified by forcing positive Y-axis value. Math.Abs()
+            double obstHeigh = obst.Texture.Height;
+            double obstWidth = obst.Texture.Width;
+            double obstacleEdge = Math.Sqrt(obstHeigh * obstHeigh + obstWidth * obstWidth);
+            double maxPossibleCollision = obstacleEdge + Margin * 2 + 0.01;
+            if (obst.Pos.Y >= 0 && Math.Abs(obstPos.Y) > maxPossibleCollision) return;
+
+            // Obstacle is now almost certainly within the detection box.
+            // Monogame Textures only work as squares, so we use squares isntead of circles.
+            double cX = obst.Pos.X;
+            double cY = obst.Pos.Y;
+
+            //"we only need to calculate the sqrt part of the above equation once"
+            double meWidth = ME.Texture.Width;
+            double meHeight = ME.Texture.Height;
+            double expandedRadius = obstacleEdge + Math.Sqrt(meWidth * meWidth + meHeight * meHeight);
+
+            double SqrtPart = Math.Sqrt(expandedRadius * expandedRadius + cX * cY);
+
+            double ip = cX - SqrtPart;
+
+            if(ip <= 0)
+            {
+                ip = cX + SqrtPart;
+            }
+
+            //"test to see if this is the closest so far. If it is, keep a record of hte obstacle and its coördinates"
+            if(ip < DistanceToClosestIP)
+            {
+                DistanceToClosestIP = ip;
+                ClosestIntersectingObject = obst;
+                LocalPosOfClosestObstacle = obst.Pos;
+            }
+
+        }
 
     }
 }
