@@ -31,7 +31,7 @@ namespace CorployGame.behaviour.steering
             Vector2D desiredVelocity = (TargetPos - ME.Pos).Normalize() * ME.MaxSpeed;
 
             //TODO: Remove later
-            //Console.WriteLine($"desiredvelocity length = {desiredVelocity.Length()}");
+            Console.WriteLine($"desiredvelocity Seek: {desiredVelocity - ME.Velocity}");
 
             return desiredVelocity - ME.Velocity;
         }

@@ -16,6 +16,9 @@ namespace CorployGame.behaviour.steering
         double DistanceToClosestIP; // Closest Intersectingpoint distance.
         Vector2D LocalPosOfClosestObstacle;
 
+        // TODO: change later
+        Transformations transformations = new Transformations();
+
         public ObstacleAvoidanceBehaviour(MovingEntity me) : base(me)
         {
             DBoxWidth = me.Texture.Width;
@@ -35,6 +38,7 @@ namespace CorployGame.behaviour.steering
 
         public override Vector2D Calculate()
         {
+            Vector2D steeringForce = new Vector2D(0, 0);
             UpdateDBoxLength();
             ClosestIntersectingObject = null;
             DistanceToClosestIP = double.MaxValue;
@@ -42,8 +46,6 @@ namespace CorployGame.behaviour.steering
             List<Obstacle> localObstacles = ME.MyWorld.TagObstaclesInCollisionRange(ME, DBoxLength);
             // If there are no local objects to collide with, return blank vector to avoid calculation errors with "NULL".
             if(localObstacles == null || localObstacles.Count < 1) return new Vector2D(0, 0);
-
-            Console.WriteLine("detection test1");
 
             Vector2D MePos = GenerateLocalUniverse(ref localObstacles);
 
@@ -54,10 +56,23 @@ namespace CorployGame.behaviour.steering
             }
 
             // Calculating the steering force
+            if(ClosestIntersectingObject != null)
+            {
+                // "the closer the agent is to an object, the stronger the steering force should be"
+                double multiplier = 1.0 + (DBoxLength - LocalPosOfClosestObstacle.X) / DBoxLength;
+                steeringForce.Y = (ClosestIntersectingObject.GetRadius() - LocalPosOfClosestObstacle.Y) * multiplier;
 
+                // "apply a braking force proportional to the obstacle's distrance from the vehicle
+                const double BrakingWeight = 0.2;
 
-            //TODO: Replace with propper vector later.
-            return new Vector2D(0, 0);
+                steeringForce.X = (ClosestIntersectingObject.GetRadius() - LocalPosOfClosestObstacle.X) * BrakingWeight;
+            }
+            //Console.WriteLine("steeringforce: " + steeringForce);
+            Console.WriteLine("avoidance steeering force:" + transformations.VectorToWorldSpace(steeringForce, ME.Orientation));
+
+            //TODO: Book uses heading and side, version.
+            return transformations.VectorToWorldSpace(steeringForce, ME.Orientation);
+            //return transformations.VectorToWorldSpace(steeringForce, ME.Heading, ME.Side);
         }
 
         private void GenerateLocalUniverse(ref List<Square> obstList)

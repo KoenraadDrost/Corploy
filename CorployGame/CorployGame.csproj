@@ -31,7 +31,6 @@
     <PackageReference Include="NUnit3TestAdapter" Version="4.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="util\" />
     <Folder Include="system\" />
   </ItemGroup>
 </Project>

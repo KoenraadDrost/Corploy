@@ -13,7 +13,7 @@ namespace CorployGame.entity
         }
 
         // copy Constructor
-        public Obstacle(Obstacle o) : base(o.Pos, o.MyWorld, o.Texture)
+        public Obstacle(Obstacle o) : this(o.Pos, o.MyWorld, o.Texture)
         {
         }
 

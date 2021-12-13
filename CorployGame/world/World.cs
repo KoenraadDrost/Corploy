@@ -13,7 +13,7 @@ namespace CorployGame
 {
     class World
     {
-        public List<MovingEntity> entities = new List<MovingEntity>();
+        public List<Vehicle> entities = new List<Vehicle>();
         public List<Obstacle> obstacles = new List<Obstacle>();
         public Vehicle Target { get; set; }
         public int Width { get; set; }
@@ -95,11 +95,6 @@ namespace CorployGame
             o1.VColor = Color.Gray;
             o1.UpdateTexture();
             obstacles.Add(o1);
-
-            // TODO: Remove test
-            Square s1 = new Square(20);
-            Console.WriteLine($"Square Write Test: {s1}");
-
         }
 
         /// <summary>

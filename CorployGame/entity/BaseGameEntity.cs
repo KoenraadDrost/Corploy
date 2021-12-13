@@ -11,6 +11,8 @@ namespace CorployGame.entity
         public Texture2D Texture { get; set; }
         public Color VColor { get; set; }
 
+        double Radius; // Not always set.
+
         public BaseGameEntity(Vector2D pos, World w, Texture2D t)
         {
             Pos = pos;
@@ -19,6 +21,11 @@ namespace CorployGame.entity
             VColor = Color.White;
 
             UpdateTexture();
+        }
+
+        public BaseGameEntity(Vector2D pos, World w, Texture2D t, double rad) : this(pos, w, t)
+        {
+            Radius = rad;
         }
 
         public abstract void Update(float delta);
@@ -46,6 +53,16 @@ namespace CorployGame.entity
         public Vector2 GetTextureOrigin()
         {
             return new Vector2(Texture.Width / 2, Texture.Height / 2);
+        }
+
+        public double GetRadius()
+        {
+            if (Radius != default) return Radius;
+            if (Texture.Height >= Texture.Width)
+            {
+                return Texture.Width;
+            }
+            else return Texture.Height;
         }
     }
 }

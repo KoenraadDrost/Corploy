@@ -37,6 +37,14 @@ namespace CorployGame.behaviour.steering
             SteeringForce = new Vector2D(0,0);
 
             Vector2D force = new Vector2D(0, 0);
+
+            if (ObstacleAvoidanceIsOn)
+            {
+                force = ObstacleAvoidance.Calculate();
+
+                if (!AccumilatedForce(force)) return SteeringForce; // Max Force already reached, no need to try and add more.
+            }
+            
             if(SeekIsOn)
             {
                 force = Seek.Calculate();
@@ -50,14 +58,6 @@ namespace CorployGame.behaviour.steering
 
                 if (!AccumilatedForce(force)) return SteeringForce; // Max Force already reached, no need to try and add more.
             }
-
-            if (ObstacleAvoidanceIsOn)
-            {
-                force = ObstacleAvoidance.Calculate();
-
-                if (!AccumilatedForce(force)) return SteeringForce; // Max Force already reached, no need to try and add more.
-            }
-
 
             // Return sum of all forces.
             return SteeringForce;

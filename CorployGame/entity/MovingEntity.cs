@@ -20,15 +20,15 @@ namespace CorployGame.entity
         public double MaxTurnRate { get; set; }
         public Vector2D SteeringForce { get; set; }
 
+        int Speedfactor = 200;
+
         public MovingEntity(Vector2D pos, World w, Texture2D t) : base(pos, w, t)
         {
-            int speedfactor = 200;
-
             Orientation = 0f;
-            Mass = 3;
+            Mass = 10;
             Speed = 0;
-            MaxSpeed = 150f * speedfactor;
-            MaxForce = 300.0 * speedfactor;
+            MaxSpeed = 150f;
+            MaxForce = 300.0;
             Velocity = new Vector2D();
             Heading = new Vector2D();
             Side = new Vector2D();
@@ -37,7 +37,7 @@ namespace CorployGame.entity
         public override void Update(float timeElapsed)
         {
             // acceleration = force / mass
-            Vector2D acceleration = SteeringForce.divide(Mass);
+            Vector2D acceleration = SteeringForce.divide(Mass) * Speedfactor;
 
             // update velocity
             Velocity += acceleration * timeElapsed;
