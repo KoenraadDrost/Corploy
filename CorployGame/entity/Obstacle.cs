@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using CorployGame.world.navigation;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ namespace CorployGame.entity
 {
     class Obstacle : BaseGameEntity
     {
+        public List<Node> OccupiedNodes { get; set; }
         public Obstacle(Vector2D pos, World w, Texture2D t) : base(pos, w, t)
         {
         }

@@ -67,12 +67,9 @@ namespace CorployGame.behaviour.steering
 
                 steeringForce.X = (ClosestIntersectingObject.GetRadius() - LocalPosOfClosestObstacle.X) * BrakingWeight;
             }
-            //Console.WriteLine("steeringforce: " + steeringForce);
-            Console.WriteLine("avoidance steeering force:" + transformations.VectorToWorldSpace(steeringForce, ME.Orientation));
-
-            //TODO: Book uses heading and side, version.
-            return transformations.VectorToWorldSpace(steeringForce, ME.Orientation);
+            //Book uses heading and side, version. Which is currently not working on my end.
             //return transformations.VectorToWorldSpace(steeringForce, ME.Heading, ME.Side);
+            return transformations.VectorToWorldSpace(steeringForce, ME.Orientation) + new Vector2D(ME.Pos.X, 0); // Add X back to the force, as we set X to 0 during localSpace calculation.
         }
 
         private void GenerateLocalUniverse(ref List<Square> obstList)
@@ -131,7 +128,6 @@ namespace CorployGame.behaviour.steering
             {
                 obstList[i].Pos.X -= tempMEpos.X;
             }
-            tempMEpos.X = 0;
 
             return tempMEpos;
         }
@@ -145,14 +141,9 @@ namespace CorployGame.behaviour.steering
 
             // If obstacle is way outside of collisionbox Y-axis, ignore.
             // 2* margin because it's for both the Moving entity's width and the margin in which it can collide with edge of obstacle.
-            // Square root of both height and width of obstacle to be certain it's outside of range, even if rotated in worst case scenario (45 degrees).
-            // Add 0,01 for minor rounding fluctuations.
             // Check for both positive and negative Y-axis values.(Below horizon, above horizon)
             // Simplified by forcing positive Y-axis value. Math.Abs()
-            double obstHeigh = obst.Texture.Height;
-            double obstWidth = obst.Texture.Width;
-            double obstacleEdge = Math.Sqrt(obstHeigh * obstHeigh + obstWidth * obstWidth);
-            double maxPossibleCollision = obstacleEdge + Margin * 2 + 0.01;
+            double maxPossibleCollision = obst.GetRadius() + Margin * 2;
             if (obst.Pos.Y >= 0 && Math.Abs(obstPos.Y) > maxPossibleCollision) return;
 
             // Obstacle is now almost certainly within the detection box.
@@ -161,9 +152,7 @@ namespace CorployGame.behaviour.steering
             double cY = obst.Pos.Y;
 
             //"we only need to calculate the sqrt part of the above equation once"
-            double meWidth = ME.Texture.Width;
-            double meHeight = ME.Texture.Height;
-            double expandedRadius = obstacleEdge + Math.Sqrt(meWidth * meWidth + meHeight * meHeight);
+            double expandedRadius = obst.GetRadius() + ME.GetRadius();
 
             double SqrtPart = Math.Sqrt(expandedRadius * expandedRadius + cX * cY);
 
