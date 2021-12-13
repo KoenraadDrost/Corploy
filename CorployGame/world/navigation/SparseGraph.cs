@@ -18,6 +18,7 @@ namespace CorployGame.world.navigation
 
         public int AddNode(Node node)
         {
+            Nodes.Add(node);
             return node.iIndex;
         }
 
@@ -34,6 +35,11 @@ namespace CorployGame.world.navigation
         public void RemoveEdge()
         {
 
+        }
+
+        public double CalcEdgeCost(Node nFrom, Node nTo)
+        {
+            return Math.Abs( (nFrom.Pos - nTo.Pos).Length() );
         }
     }
 }

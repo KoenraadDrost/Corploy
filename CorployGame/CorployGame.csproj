@@ -33,4 +33,9 @@
   <ItemGroup>
     <Folder Include="system\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="Content\PlayerAgent 12-02-2021 04-44-13.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

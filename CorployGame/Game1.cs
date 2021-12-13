@@ -82,11 +82,12 @@ namespace CorployGame
             {
                 world.Target.Pos = new Vector2D(mstate.X, mstate.Y);
 
+                world.PlayerEntity.SBS.SetTarget(world.Target.Pos);
                 // TODO: Find better way for target update.
-                if (world.entities[0] is Vehicle)
-                {
-                    ((Vehicle)world.entities[0] ).SBS.SetTarget(world.Target.Pos);
-                }
+                //if (world.entities[0] is Vehicle)
+                //{
+                //    ((Vehicle)world.entities[0] ).SBS.SetTarget(world.Target.Pos);
+                //}
             }
 
             // Update World
