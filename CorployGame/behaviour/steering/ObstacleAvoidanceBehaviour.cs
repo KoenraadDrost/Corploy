@@ -29,7 +29,7 @@ namespace CorployGame.behaviour.steering
         private void UpdateDBoxLength ()
         {
             // Split up to avoid divide by zero error.
-            DBoxLength = ME.Texture.Height * 2;
+            DBoxLength = ME.Texture.Height;
             if (ME.MaxSpeed > 0.001)
             {
                 DBoxLength += (ME.Speed / ME.MaxSpeed) * ME.Texture.Height;

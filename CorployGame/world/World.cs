@@ -15,11 +15,10 @@ namespace CorployGame
 {
     class World
     {
-        private const string PlayerSpritePath = "Content/PlayerAgent 12-02-2021 04-44-13.png";
         public List<Vehicle> entities = new List<Vehicle>();
         public List<Obstacle> obstacles = new List<Obstacle>();
 
-        public Vehicle PlayerEntity { get; set; }
+        public PlayerAgent PlayerEntity { get; set; }
         public List<Node> AllNodes { get; set; }
         public int DefaultNodeDistance { get; set; }
         public Level CurrentLevel { get; set; }
@@ -36,7 +35,7 @@ namespace CorployGame
             AllNodes = new List<Node>();
             GenerateAllNodes();
 
-            CurrentLevel = LevelGenerator.GenerateLevel(AllNodes);
+            CurrentLevel = LevelGenerator.GenerateLevel(AllNodes, this);
 
             Width = w;
             Height = h;
@@ -67,7 +66,7 @@ namespace CorployGame
         /// <param name="gameTime"></param>
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            PlayerEntity.Draw(spriteBatch, gameTime);
+            PlayerEntity.Avatar.Draw(spriteBatch, gameTime);
 
             Target.Draw(spriteBatch, gameTime);
 
@@ -89,13 +88,8 @@ namespace CorployGame
             Target.VColor = Color.Red;
             Target.UpdateTexture();
 
-            PlayerEntity = new Vehicle(new Vector2D(100, 100), this, new Texture2D(GD, 16, 16));
-            PlayerEntity.SBS.SeekOn();
-            //v.SBS.ArriveON();
-            PlayerEntity.SBS.ObstacleAvoidanceON();
-            PlayerEntity.SBS.SetTarget(Target.Pos);
-            PlayerEntity.VColor = Color.Blue;
-            PlayerEntity.UpdateTexture();
+            PlayerEntity = new PlayerAgent(new Vector2D(100, 100), this, new Texture2D(GD, 16, 16));
+            PlayerEntity.InitializeAvatar();
 
             Vehicle v = new Vehicle( new Vector2D(50, 50), this, new Texture2D(GD, 16, 16) );
             v.SBS.SeekOn();
@@ -105,11 +99,6 @@ namespace CorployGame
             v.VColor = Color.Blue;
             v.UpdateTexture();
             entities.Add(v);
-
-            // Load Texture of player
-            FileStream fileStream = new FileStream(PlayerSpritePath, FileMode.Open);
-            PlayerEntity.Texture = Texture2D.FromStream(GD, fileStream);
-            fileStream.Dispose();
 
             // Obstacles
             Obstacle o1 = new Obstacle( new Vector2D(300, 300), this, new Texture2D(GD, 30, 30) );

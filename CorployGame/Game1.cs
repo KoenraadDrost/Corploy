@@ -1,4 +1,5 @@
 ﻿using CorployGame.entity;
+using CorployGame.world;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -8,9 +9,9 @@ namespace CorployGame
 {
     public class Game1 : Game
     {
-        Texture2D winLogotexture;
-        Vector2 winLogoPos;
-        float winLogoSpeed;
+        //Texture2D winLogotexture;
+        //Vector2 winLogoPos;
+        //float winLogoSpeed;
 
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -23,19 +24,26 @@ namespace CorployGame
             IsFixedTimeStep = false;
             TargetElapsedTime = TimeSpan.FromSeconds(0.016666);
             _graphics = new GraphicsDeviceManager(this);
+
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
 
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic
-            winLogoPos = new Vector2(_graphics.PreferredBackBufferWidth / 2,
-                _graphics.PreferredBackBufferHeight / 2);
-            winLogoSpeed = 100f;
+            // For readability
+            int width = StaticParameters.ScreenWidth;
+            int height = StaticParameters.screenHeight;
 
-            int width = 800;
-            int height = 480;
+            // This project's MonoGame Version issue: Can't alter window and screen size in constructor.
+            _graphics.PreferredBackBufferWidth = width;
+            _graphics.PreferredBackBufferHeight = height;
+            _graphics.ApplyChanges();
+
+            // TODO: Add your initialization logic
+            //winLogoPos = new Vector2(_graphics.PreferredBackBufferWidth / 2,
+            //    _graphics.PreferredBackBufferHeight / 2);
+            //winLogoSpeed = 100f;
 
             world = new World(width, height, GraphicsDevice);
             world.Populate();
@@ -65,30 +73,17 @@ namespace CorployGame
             var kstate = Keyboard.GetState();
             var mstate = Mouse.GetState();
 
-            if (kstate.IsKeyDown(Keys.Up))
-                winLogoPos.Y -= winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //if (kstate.IsKeyDown(Keys.Up))
+            //    winLogoPos.Y -= winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (kstate.IsKeyDown(Keys.Down))
-                winLogoPos.Y += winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //if (kstate.IsKeyDown(Keys.Down))
+            //    winLogoPos.Y += winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (kstate.IsKeyDown(Keys.Left))
-                winLogoPos.X -= winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+            //if (kstate.IsKeyDown(Keys.Left))
+            //    winLogoPos.X -= winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            if (kstate.IsKeyDown(Keys.Right))
-                winLogoPos.X += winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            // Update target position on mouse click. Account for lingering "Pressed"state.
-            if (mstate.LeftButton == ButtonState.Pressed && oldMState.LeftButton == ButtonState.Released)
-            {
-                world.Target.Pos = new Vector2D(mstate.X, mstate.Y);
-
-                world.PlayerEntity.SBS.SetTarget(world.Target.Pos);
-                // TODO: Find better way for target update.
-                //if (world.entities[0] is Vehicle)
-                //{
-                //    ((Vehicle)world.entities[0] ).SBS.SetTarget(world.Target.Pos);
-                //}
-            }
+            //if (kstate.IsKeyDown(Keys.Right))
+            //    winLogoPos.X += winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             // Update World
             world.Update(gameTime);

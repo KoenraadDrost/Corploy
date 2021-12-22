@@ -9,7 +9,7 @@ namespace CorployGame.entity
 {
     abstract class MovingEntity : BaseGameEntity
     {
-        public Vector2D Velocity { get; set; } // Current length of travel and direction represented by a x.y coördinate relative to entity position. Value is dependend on elapsed time.
+        public Vector2D Velocity { get; set; } // Current length of travel and direction represented by a x.y coördinate relative to entity position. Value is dependent on elapsed time.
         public Vector2D Heading { get; set; }
         public Vector2D Side { get; set; }
         public float Orientation { get; set; } // Angle of heading relative to horizon
@@ -19,8 +19,6 @@ namespace CorployGame.entity
         public double MaxForce { get; set; }
         public double MaxTurnRate { get; set; }
         public Vector2D SteeringForce { get; set; }
-
-        int Speedfactor = 200;
 
         public MovingEntity(Vector2D pos, World w, Texture2D t) : base(pos, w, t)
         {
@@ -37,7 +35,7 @@ namespace CorployGame.entity
         public override void Update(float timeElapsed)
         {
             // acceleration = force / mass
-            Vector2D acceleration = SteeringForce.divide(Mass) * Speedfactor;
+            Vector2D acceleration = SteeringForce.divide(Mass) * world.StaticParameters.SpeedFactor;
 
             // update velocity
             Velocity += acceleration * timeElapsed;

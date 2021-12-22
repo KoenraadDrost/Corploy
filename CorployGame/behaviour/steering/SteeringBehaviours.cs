@@ -103,23 +103,33 @@ namespace CorployGame.behaviour.steering
         // Add and activate behaviours.
         public void SeekOn()
         {
+            if (SeekIsOn) return;
             Seek = new SeekBehaviour(Vehicle);
             SeekIsOn = true;
         }
 
         public void ArriveON()
         {
+            if (ArriveIsOn) return;
             Arrive = new ArriveBehaviour(Vehicle);
             ArriveIsOn = true;
         }
 
         public void ObstacleAvoidanceON()
         {
+            if (ObstacleAvoidanceIsOn) return;
             ObstacleAvoidance = new ObstacleAvoidanceBehaviour(Vehicle);
             ObstacleAvoidanceIsOn = true;
         }
 
         // Remove and deactivate behaviours.
+        public void AllOff()
+        {
+            SeekOff();
+            ArriveOff();
+            ObstacleAvoidanceOff();
+        }
+
         public void SeekOff()
         {
             Seek = null;
