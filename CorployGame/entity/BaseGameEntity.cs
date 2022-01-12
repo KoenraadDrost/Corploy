@@ -50,7 +50,7 @@ namespace CorployGame.entity
             return new Vector2(x, y);
         }
 
-        public Vector2 GetTextureOrigin()
+        public Vector2 GetTextureCenter()
         {
             return new Vector2(Texture.Width / 2, Texture.Height / 2);
         }

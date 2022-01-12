@@ -46,6 +46,7 @@ namespace CorployGame
             //winLogoSpeed = 100f;
 
             world = new World(width, height, GraphicsDevice);
+            world.Initialize();
             world.Populate();
 
             base.Initialize();

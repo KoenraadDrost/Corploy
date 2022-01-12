@@ -8,15 +8,19 @@ namespace CorployGame.world
 {
     class Level
     {
-        public List<Node> AllNodes { get; set; }
+        public Dictionary<string, Node> AllNodes { get; set; }
         public List<Obstacle> Obstacles { get; set; }
         public BaseGameEntity PlayerObjective { get; set; }
         public BaseGameEntity EnemyObjective { get; set; }
+        public Graph PathToPlObj { get; set; }
+        public Graph PathToEnObj { get; set; }
 
-        public Level(List<Node> allNodes)
+        public Level(Dictionary<string, Node> allNodes)
         {
             AllNodes = allNodes;
             Obstacles = new List<Obstacle>();
+            PathToPlObj = new Graph();
+            PathToEnObj = new Graph();            
         }
     }
 }

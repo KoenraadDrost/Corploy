@@ -9,9 +9,9 @@ namespace CorployGame.world
 {
     static class LevelGenerator
     {
-        public static Level GenerateLevel(List<Node> allNodes, World w)
+        public static Level GenerateLevel(World w)
         {
-            Level level = new Level(allNodes);
+            Level level = new Level(w.AllNodes);
 
 
 

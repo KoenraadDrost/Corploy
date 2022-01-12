@@ -22,9 +22,8 @@ namespace CorployGame.entity
 
         public MovingEntity(Vector2D pos, World w, Texture2D t) : base(pos, w, t)
         {
-            Orientation = 0f;
+            Orientation = Speed = 0f;
             Mass = 10;
-            Speed = 0;
             MaxSpeed = 150f;
             MaxForce = 300.0;
             Velocity = new Vector2D();
@@ -64,23 +63,24 @@ namespace CorployGame.entity
 
             float rotation = Orientation * ((float)Math.PI / 180);
             //_spriteBatch.Draw(
-            //    Texture2D texture,
-            //    Vector2 position,
-            //    Square (is nullable),
+            //    Texture2D, --texture
+            //    Vector2, --position
+            //    Square, --(is nullable)
             //    Color,
             //    Rotation,
-            //    Origin(Define an origin point relative to the texture. Origin wil snap to the given 'position'. If not used, or set to(0,0), Drawing will start with 'position' as top-left corner of texture.) ,
-            //    Vector2 scale,
-            //    SpriteEffects effects,
+            //    Origin, --(Define an origin point relative to the texture. Origin wil snap to the given 'position'. If not used, or set to(0,0), Drawing will start with 'position' as top-left corner of texture.)
+            //              (Also serves as rotation axis)
+            //    Vector2, --scale
+            //    SpriteEffects, --effects
             //    0f
             //);
             spriteBatch.Draw(
                 Texture,
                 position,
                 null,
-                Color.White,
+                VColor,
                 rotation,
-                GetTextureOrigin(),
+                GetTextureCenter(),
                 Vector2.One,
                 SpriteEffects.None,
                 0f

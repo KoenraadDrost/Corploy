@@ -15,12 +15,12 @@ namespace CorployGame
 {
     class World
     {
+        // TODO: Remove when level takes this over.
         public List<Vehicle> entities = new List<Vehicle>();
         public List<Obstacle> obstacles = new List<Obstacle>();
 
         public PlayerAgent PlayerEntity { get; set; }
-        public List<Node> AllNodes { get; set; }
-        public int DefaultNodeDistance { get; set; }
+        public Dictionary<string, Node> AllNodes { get; set; }
         public Level CurrentLevel { get; set; }
         public Vehicle Target { get; set; }
         public int Width { get; set; }
@@ -31,17 +31,71 @@ namespace CorployGame
 
         public World(int w, int h, GraphicsDevice gd)
         {
-            DefaultNodeDistance = 20;
-            AllNodes = new List<Node>();
-            GenerateAllNodes();
+            AllNodes = new Dictionary<string, Node>();
 
-            CurrentLevel = LevelGenerator.GenerateLevel(AllNodes, this);
+            //CurrentLevel = LevelGenerator.GenerateLevel(AllNodes, this);
 
             Width = w;
             Height = h;
             GD = gd;
             LastUpdateTime = 0;
         }
+
+        public void Initialize()
+        {
+            GenerateAllNodes();
+        }
+
+        public void Populate()
+        {
+            // Entities
+            Target = new Vehicle(new Vector2D(200, 100), this, new Texture2D(GD, 10, 10));
+            Target.VColor = Color.Red;
+            Target.UpdateTexture();
+
+            PlayerEntity = new PlayerAgent(new Vector2D(100, 100), this, new Texture2D(GD, 16, 16));
+            PlayerEntity.InitializeAvatar();
+
+            Vehicle v = new Vehicle(new Vector2D(50, 50), this, new Texture2D(GD, 16, 16));
+            v.SBS.SeekOn();
+            //v.SBS.ArriveON();
+            v.SBS.ObstacleAvoidanceON();
+            v.SBS.SetTarget(Target.Pos);
+            v.VColor = Color.Blue;
+            v.UpdateTexture();
+            entities.Add(v);
+
+            // Obstacles
+            Obstacle o1 = new Obstacle(new Vector2D(300, 300), this, new Texture2D(GD, 30, 30));
+            o1.VColor = Color.Gray;
+            o1.UpdateTexture();
+            obstacles.Add(o1);
+
+            //TODO: remove tests
+            o1.GetBlockedNodes();
+
+            Graph g = new Graph();
+            GenerateBidirectionalEdges(g);
+            List<Node> DijkstraNodes =  g.Dijkstra( start: AllNodes["24_5"],
+                                                    end: AllNodes["27_20"]);
+            foreach(Node n in DijkstraNodes)
+            {
+                string s = "";
+                s += $"Node ID: {n.iIndex} edgecount: {n.Adj.Count} ";
+                //foreach(Edge e in n.Adj)
+                //{
+                //    s += $" => ( E: {e.iFrom} -> {e.iTo} )";
+                //}
+                Console.WriteLine(s);
+
+                Obstacle ob = new Obstacle(n.Pos, this, new Texture2D(GD, 4, 4));
+                ob.VColor = Color.Green;
+                ob.UpdateTexture();
+                obstacles.Add(ob);
+            }
+        }
+
+
 
         public void Update (GameTime gameTime)
         {
@@ -81,32 +135,6 @@ namespace CorployGame
             }
         }
 
-        public void Populate()
-        {
-            // Entities
-            Target = new Vehicle( new Vector2D(200, 100), this, new Texture2D(GD, 10, 10) );
-            Target.VColor = Color.Red;
-            Target.UpdateTexture();
-
-            PlayerEntity = new PlayerAgent(new Vector2D(100, 100), this, new Texture2D(GD, 16, 16));
-            PlayerEntity.InitializeAvatar();
-
-            Vehicle v = new Vehicle( new Vector2D(50, 50), this, new Texture2D(GD, 16, 16) );
-            v.SBS.SeekOn();
-            //v.SBS.ArriveON();
-            v.SBS.ObstacleAvoidanceON();
-            v.SBS.SetTarget(Target.Pos);
-            v.VColor = Color.Blue;
-            v.UpdateTexture();
-            entities.Add(v);
-
-            // Obstacles
-            Obstacle o1 = new Obstacle( new Vector2D(300, 300), this, new Texture2D(GD, 30, 30) );
-            o1.VColor = Color.Gray;
-            o1.UpdateTexture();
-            obstacles.Add(o1);
-        }
-
         /// <summary>
         /// 
         /// </summary>
@@ -143,23 +171,119 @@ namespace CorployGame
             return taggedObstacles.Count < 1 ? null : taggedObstacles;
         }
 
+        // TODO: Move all node related stuff to Level class.
         private void GenerateAllNodes()
         {
-            int MaxHorizontalNodes = Width / DefaultNodeDistance - 1; // No nodes on border of the level, with counter starting at 1 this results in -2, for borders on both sides.
-            int MaxVerticalNodes = Height / DefaultNodeDistance - 1;
-            for (int iVer = 1; iVer < MaxVerticalNodes; iVer++)
+            for (int iHor = 1; iHor < StaticParameters.MaxHorizontalNodes; iHor++)
             {
-                for (int iHor = 1; iHor < MaxHorizontalNodes; iHor++)
+                for (int iVer = 1; iVer < StaticParameters.MaxVerticalNodes; iVer++)
                 {
-                    AllNodes.Add( new Node(
-                        0,
-                        new Vector2D(
-                            iHor * DefaultNodeDistance,
-                            iVer * DefaultNodeDistance)
-                        )
+                    string key = $"{iHor}_{iVer}";
+
+                    AllNodes.Add(   key, 
+                                    new Node(
+                                        key,
+                                        new Vector2D(
+                                            iHor * StaticParameters.DefaultNodeDistance,    // Pos.X
+                                            iVer * StaticParameters.DefaultNodeDistance)    // Pos.Y
+                                        )
                     );
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="graph"></param>
+        private void GenerateBidirectionalEdges(Graph graph)
+        {
+            // Looping in this way to make neighbour selection more convenient.
+            for (int iHor = 1; iHor < StaticParameters.MaxHorizontalNodes; iHor++)
+            {
+                for (int iVer = 1; iVer < StaticParameters.MaxVerticalNodes; iVer++)
+                {
+                    Vector2D tempV = new Vector2D(iHor-1, iVer-1);
+                    string nodeKey = $"{iHor}_{iVer}";
+
+                    if (AllNodes[nodeKey].Blocked) continue;
+
+                    // Node is not blocked, so node is usable in the graph.
+                    graph.AddNode(nodeKey, AllNodes[nodeKey]);
+
+                    /// Default neighbours(B), of current Node(N):
+                    /// X X X X X X
+                    /// X B B B X X
+                    /// X B N B X X
+                    /// X B B B X X
+                    /// X X X X X X
+
+                    for(int iH = 0; iH < 2; iH++)
+                    {
+                        for (int iV = 0; iV < 2; iV++)
+                        {
+                            string bKey = $"{tempV.X}_{tempV.Y}";
+
+                            if (bKey == nodeKey)
+                            {
+                                tempV.Y++;
+                                continue; // We don't need an edge that loops back to the same node.
+                            }
+
+                            // If the Node is valid, add new edge.
+                            if (AllNodes.ContainsKey(bKey))
+                            {
+                                Edge e = new Edge(  from: nodeKey,
+                                                    to: bKey,
+                                                    cost: graph.CalcEdgeCost(   AllNodes[nodeKey],
+                                                                                AllNodes[bKey]  )
+                                                    );
+                                bool succesA = AllNodes[nodeKey].AddAdjacentEdge(e);
+                                bool succesB = AllNodes[bKey].AddAdjacentEdge(e);
+                                if (!succesA && !succesB) e = null; // To help out the garbage collector a bit.(Though it may not be referenced, it does reference 2 Nodes) Edges that already exist in reverse order are not needed.
+                            }
+
+                            tempV.Y++;
+                        }
+
+                        tempV.X++;
+                    }
+                    
+                }
+            }
+        }
+
+        /// <summary>
+        /// Smart find of NodeID making use of the constant 'DefaultNodeDistance' and the AllNodes key standard of X_Y.
+        /// Using the rounding function, nodes that are less than half the 'DefaultNodeDistance' removed from the search area, are also added.
+        /// This also makes sure the double values are whole numbers, safe to be used as the dictionary key-string.
+        /// </summary>
+        /// <param name="tl">TopLeft corner of search area</param>
+        /// <param name="br">BottomRight corner of search area</param>
+        /// <returns> List<string> with NodeIDs </returns>
+        public List<string> FindNodeIDsInArea(Vector2D tl, Vector2D br)
+        {
+            List<string> nodesIDs = new List<string>();
+
+            // This gives us the minimum 'X_Y' dictionary key.
+            Vector2D minNodeV = new Vector2D( x: Math.Round(tl.X / StaticParameters.DefaultNodeDistance),
+                                              y: Math.Round(tl.Y / StaticParameters.DefaultNodeDistance)
+                                             );
+            // This gives us the maximum 'X_Y' dictionary key.
+            Vector2D maxNodeV = new Vector2D( x: Math.Round(br.X / StaticParameters.DefaultNodeDistance),
+                                              y: Math.Round(br.Y / StaticParameters.DefaultNodeDistance)
+                                             );
+            
+            // Now loop between min/max X and min/max Y.
+            for(int iX = (int)minNodeV.X; iX <= (int)maxNodeV.X; iX++)
+            {
+                for(int iY = (int)minNodeV.Y; iY <= (int)maxNodeV.Y; iY++)
+                {
+                    nodesIDs.Add($"{iX}_{iY}");
+                }
+            }
+
+            return nodesIDs;
         }
     }
 }

@@ -7,23 +7,20 @@ namespace CorployGame.world.navigation
     class Edge
     {
         public double Cost { get; set; }
-        public int iFrom { get; set; }
-        public int iTo { get; set; }
+        public string iFrom { get; set; }
+        public string iTo { get; set; }
 
-        public Edge(int from, int to, double cost)
+        public Edge(string from, string to, double cost)
         {
             iFrom = from;
             iTo = to;
             Cost = cost;
         }
 
-        public Edge(double cost) : this(0,0, cost)
-        {
-        }
-
-        public bool IsTraversable()
-        {
-            return iFrom >= 1 && iTo >= 1;
-        }
+        // Not sure if I need this and if I want to give it acces to Graph to check Nodes for Blocked state.
+        //public bool IsTraversable()
+        //{
+        //    return iFrom >= 1 && iTo >= 1;
+        //}
     }
 }

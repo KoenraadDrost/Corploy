@@ -30,7 +30,7 @@ namespace CorployGame.entity
             //v.SBS.ArriveON();
             Avatar.SBS.ObstacleAvoidanceON();
             Avatar.SBS.SetTarget(World.Target.Pos);
-            Avatar.VColor = Color.Blue;
+            Avatar.VColor = Color.White;
             Avatar.UpdateTexture();
 
             // Load Texture of player

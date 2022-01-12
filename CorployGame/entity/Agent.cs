@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CorployGame.entity
 {
-    class Agent
+    class Agent// :IDisposable
     {
         public Vehicle Avatar { get; set; }
         public bool ShouldSpawn;
@@ -36,5 +36,13 @@ namespace CorployGame.entity
             if (Avatar == default && ShouldSpawn) InitializeAvatar();
             if (Avatar != default && MovementEnabled) Avatar.Update(timeElapsed);
         }
+
+        //TODO: Implement for managing active agents in the game via waves.
+        //public void Dispose()
+        //{
+        //    Dispose(true);
+        //    //the SuppressFinalize method prevents the garbage collector from running the finalizer.
+        //    GC.SuppressFinalize(this);
+        //}
     }
 }
