@@ -36,10 +36,17 @@ namespace CorployGame.behaviour.steering
             }
         }
 
+        private void UpdateDBoxWidth()
+        {
+            DBoxWidth = ME.GetRadius();
+            Margin = DBoxWidth / 2;
+        }
+
         public override Vector2D Calculate()
         {
             Vector2D steeringForce = new Vector2D(0, 0);
             UpdateDBoxLength();
+            UpdateDBoxWidth();
             ClosestIntersectingObject = null;
             DistanceToClosestIP = double.MaxValue;
 
@@ -62,14 +69,16 @@ namespace CorployGame.behaviour.steering
                 double multiplier = 1.0 + (DBoxLength - LocalPosOfClosestObstacle.X) / DBoxLength;
                 steeringForce.Y = (ClosestIntersectingObject.GetRadius() - LocalPosOfClosestObstacle.Y) * multiplier;
 
-                // "apply a braking force proportional to the obstacle's distrance from the vehicle
-                const double BrakingWeight = 0.2;
+                // "apply a braking force proportional to the obstacle's distance from the vehicle"
+                const double BreakingWeight = 0.2;
 
-                steeringForce.X = (ClosestIntersectingObject.GetRadius() - LocalPosOfClosestObstacle.X) * BrakingWeight;
+                steeringForce.X = (ClosestIntersectingObject.GetRadius() - LocalPosOfClosestObstacle.X) * BreakingWeight;
             }
             //Book uses heading and side, version. Which is currently not working on my end.
             //return transformations.VectorToWorldSpace(steeringForce, ME.Heading, ME.Side);
-            return transformations.VectorToWorldSpace(steeringForce, ME.Orientation) + new Vector2D(ME.Pos.X, 0); // Add X back to the force, as we set X to 0 during localSpace calculation.
+            Vector2D worldSteeringForce = transformations.VectorToWorldSpace(steeringForce, ME.Orientation) + new Vector2D(ME.Pos.X, 0); // Add X back to the force, as we set X to 0 during localSpace calculation.
+
+            return worldSteeringForce;
         }
 
         private void GenerateLocalUniverse(ref List<Square> obstList)
@@ -147,7 +156,6 @@ namespace CorployGame.behaviour.steering
             if (obst.Pos.Y >= 0 && Math.Abs(obstPos.Y) > maxPossibleCollision) return;
 
             // Obstacle is now almost certainly within the detection box.
-            // Monogame Textures only work as squares, so we use squares isntead of circles.
             double cX = obst.Pos.X;
             double cY = obst.Pos.Y;
 

@@ -26,8 +26,10 @@ namespace CorployGame
 
         public double Length()
         {
-            double xPow = Math.Pow(X, 2);
-            double yPow = Math.Pow(Y, 2);
+            double xPow = Math.Pow(Math.Abs(X), 2);
+            double yPow = Math.Pow(Math.Abs(Y), 2);
+            //double xPow = Math.Pow(X, 2);
+            //double yPow = Math.Pow(Y, 2);
             return Math.Sqrt(xPow + yPow);
         }
 

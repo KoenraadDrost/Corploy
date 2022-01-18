@@ -84,10 +84,12 @@ namespace CorployGame.world.navigation
                     if (cN.Adj[i].iFrom == cN.iIndex) neighInd = cN.Adj[i].iTo;
                     else neighInd = cN.Adj[i].iFrom;
 
-                    if (visited.ContainsKey(neighInd)) continue; // If neighbour was already resolved, skip.
+                    if (visited.ContainsKey(neighInd) || !Nodes.ContainsKey(neighInd)) continue; // If neighbour was already resolved, skip. Or skip if node is blocked and not in dict.
 
                     // Retrieve node from dictionary
                     Node neighbour = Nodes[neighInd];
+
+                    KeyValuePair<double, int> res = pQueue.FindNode(neighbour);
 
                     // Update distance if pathing(from start-node) through current node is shorter than the known path to the neighbour.
                     if ((cN.Distance + cN.Adj[i].Cost) < neighbour.Distance)
@@ -98,12 +100,16 @@ namespace CorployGame.world.navigation
                         eList.Add(cN); // add current node.
 
                         if (nodePaths.ContainsKey(neighInd)) nodePaths[neighInd] = eList;
-                        else nodePaths.Add(neighInd, eList); 
+                        else nodePaths.Add(neighInd, eList);
+
+                        if (res.Key > -1 && res.Value > -1)
+                        {
+                            pQueue.RemoveNode(res);
+                            res = new KeyValuePair<double, int>(-1, -1);
+                        }
 
                         neighbour.Distance = cN.Distance + cN.Adj[i].Cost;
                     }
-
-                    KeyValuePair<double, int> res = pQueue.FindNode(neighbour);
 
                     // If neighbour is not already in queue, add to queue.
                     if (res.Key < 0 || res.Value < 0) pQueue.Enqueue(neighbour);
@@ -113,8 +119,8 @@ namespace CorployGame.world.navigation
                 // Before moving on to next in queue.
                 visited.TryAdd(cN.iIndex, cN);
 
-                // Continue recursion until end-node is known. at which point no further path searching is needed.
-                if (!end.Known && pQueue.Count() > 0)
+                // Continue recursion until end-node is reached. at which point no further path searching is needed.
+                if (cN.iIndex != end.iIndex && pQueue.Count() > 0)
                     DijkstraRecursion(pQueue.Dequeue());
             }
 
@@ -122,13 +128,83 @@ namespace CorployGame.world.navigation
             return nodePaths[end.iIndex];
         }
 
-        public List<Node> AStar(Node start, Node goal)
+        public List<Node> AStar(Node start, Node end)
         {
-            List<Node> route = new List<Node>();
+            // Reset nodes before use.
+            ResetNodeDistance();
 
-            // Insert A-star Algo here.
+            // Varriables
+            Dictionary<string, Node> visited = new Dictionary<string, Node>();
+            Dictionary<string, List<Node>> nodePaths = new Dictionary<string, List<Node>>(); // Keeps track of shortest path taken to reach each node from starting node.(Start node should not be in this list.)
+            CustomPriorityQueue pQueue = new CustomPriorityQueue();
 
-            return route;
+            // A* Algorithm
+            // Preperation
+            start.Distance = 0;
+            start.Known = true;
+            AStarRecursion(start);
+
+            // Recursive loop
+            void AStarRecursion(Node cN) // cN  = Current Node
+            {
+                Vector2D relNodeV = cN.Pos - end.Pos; // Relative position of neighbour to end point.
+                double heurNodeEuclidean = relNodeV.Length();
+                double heurNodeDist = cN.Distance + heurNodeEuclidean;
+
+                // Add neighbours to queue if they're not in queue.
+                for (int i = 0; i < cN.Adj.Count; i++)
+                {
+                    // Bidirectional edges, select whichever node is NOT Current Node(cN)
+                    string neighInd = cN.Adj[i].iFrom == cN.iIndex ? cN.Adj[i].iTo : cN.Adj[i].iFrom;
+
+                    if (visited.ContainsKey(neighInd) || !Nodes.ContainsKey(neighInd)) continue; // If neighbour was already resolved, skip. Or skip if node is blocked and not in dict.
+
+                    // Retrieve node from dictionary
+                    Node neighbour = Nodes[neighInd];
+
+                    // A* Heuristic
+                    Vector2D relNeiV = neighbour.Pos - end.Pos; // Relative position of neighbour to end point.
+                    double heurNeiEuclidean = relNeiV.Length();
+                    double heurNeiDist = neighbour.Distance + heurNeiEuclidean;
+
+                    KeyValuePair<double, int> res = pQueue.FindNode(neighbour, heurNeiDist);
+
+                    // Update distance if pathing(from start-node) through current node is shorter than the known path to the neighbour.
+                    if ((heurNodeDist + cN.Adj[i].Cost) < heurNeiDist)
+                    {
+                        // Assemble new shorter path.
+                        List<Node> eList = new List<Node>();
+                        if (nodePaths.ContainsKey(cN.iIndex)) eList.AddRange(nodePaths[cN.iIndex]); // Normally only fails for start node, prevents nullpointer errors.
+                        eList.Add(cN); // add current node.
+
+                        if (nodePaths.ContainsKey(neighInd)) nodePaths[neighInd] = eList;
+                        else nodePaths.Add(neighInd, eList);
+
+                        if (res.Key > -1 && res.Value > -1)
+                        {
+                            pQueue.RemoveNode(res);
+                            res = new KeyValuePair<double, int>(-1, -1);
+                        }
+
+                        neighbour.Distance = cN.Distance + cN.Adj[i].Cost;
+                        heurNeiDist = neighbour.Distance + heurNeiEuclidean; // Update if new distance is shorter for propper placement in queue.
+                    }
+
+                    // If neighbour is not already in queue, add to queue.
+                    if (res.Key < 0 || res.Value < 0) pQueue.Enqueue(neighbour, heurNeiDist);
+                    neighbour.Known = true;
+                }
+
+                // Before moving on to next in queue.
+                visited.TryAdd(cN.iIndex, cN);
+
+                // Continue recursion until end-node is reached. at which point no further path searching is needed.
+                if (cN.iIndex != end.iIndex && pQueue.Count() > 0)
+                    AStarRecursion(pQueue.Dequeue());
+            }
+
+            // Dijkstra finished, end-node path is now Shortest Path Tree(SPT)
+            return nodePaths[end.iIndex];
         }
 
         // Graph Algorythm Helper Functions

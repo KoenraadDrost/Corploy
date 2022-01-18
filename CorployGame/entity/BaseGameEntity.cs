@@ -58,11 +58,7 @@ namespace CorployGame.entity
         public double GetRadius()
         {
             if (Radius != default) return Radius;
-            if (Texture.Height >= Texture.Width)
-            {
-                return Texture.Width;
-            }
-            else return Texture.Height;
+            return new Vector2D(Texture.Width, Texture.Height).Length();
         }
     }
 }

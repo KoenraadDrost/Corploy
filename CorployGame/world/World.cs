@@ -66,19 +66,28 @@ namespace CorployGame
             entities.Add(v);
 
             // Obstacles
-            Obstacle o1 = new Obstacle(new Vector2D(300, 300), this, new Texture2D(GD, 30, 30));
+            Obstacle o1 = new Obstacle(new Vector2D(300, 300), this, new Texture2D(GD, 40, 40));
             o1.VColor = Color.Gray;
             o1.UpdateTexture();
             obstacles.Add(o1);
 
             //TODO: remove tests
-            o1.GetBlockedNodes();
+            List<string> bNodes = o1.GetBlockedNodes();
+
+            foreach (string bnode in bNodes)
+            {
+                AllNodes[bnode].Blocked = true;
+            }
 
             Graph g = new Graph();
             GenerateBidirectionalEdges(g);
-            List<Node> DijkstraNodes =  g.Dijkstra( start: AllNodes["24_5"],
-                                                    end: AllNodes["27_20"]);
-            foreach(Node n in DijkstraNodes)
+            List<Node> DijkstraNodes = g.AStar(     start: AllNodes["8_16"],
+                                                    end: AllNodes["22_14"]);
+
+            Console.WriteLine("Last node in dijsktraList: " + DijkstraNodes[DijkstraNodes.Count - 1].Pos);
+            Console.WriteLine("missing node is known?: " + AllNodes["22_13"].Known); // Note: Last node before end always seems to be missing. No clue why yet.
+
+            foreach (Node n in DijkstraNodes)
             {
                 string s = "";
                 s += $"Node ID: {n.iIndex} edgecount: {n.Adj.Count} ";
