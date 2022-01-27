@@ -8,9 +8,9 @@ namespace CorployGame.behaviour.steering
     class SeekBehaviour : SteeringBehaviour
     {
         Vector2D TargetPos; // Ease of reference
-        public SeekBehaviour(MovingEntity me) : this( me, new Vector2D(me.MyWorld.Height /2, me.MyWorld.Width /2) ) { }
+        public SeekBehaviour(Vehicle me) : this( me, me.Pos ) { }
 
-        public SeekBehaviour(MovingEntity me, Vector2D targetPos) : base(me)
+        public SeekBehaviour(Vehicle me, Vector2D targetPos) : base(me)
         {
             TargetPos = targetPos;
         }

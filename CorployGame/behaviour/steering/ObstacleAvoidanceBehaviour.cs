@@ -19,7 +19,7 @@ namespace CorployGame.behaviour.steering
         // TODO: change later
         Transformations transformations = new Transformations();
 
-        public ObstacleAvoidanceBehaviour(MovingEntity me) : base(me)
+        public ObstacleAvoidanceBehaviour(Vehicle me) : base(me)
         {
             DBoxWidth = me.Texture.Width;
             Margin = DBoxWidth / 2;
@@ -52,7 +52,11 @@ namespace CorployGame.behaviour.steering
 
             List<Obstacle> localObstacles = ME.MyWorld.TagObstaclesInCollisionRange(ME, DBoxLength);
             // If there are no local objects to collide with, return blank vector to avoid calculation errors with "NULL".
-            if(localObstacles == null || localObstacles.Count < 1) return new Vector2D(0, 0);
+            if (localObstacles == null || localObstacles.Count < 1) 
+                return new Vector2D(0, 0);
+
+            //TODO: remove console message.
+            Console.WriteLine("Collision detection list : " + localObstacles.Count);
 
             Vector2D MePos = GenerateLocalUniverse(ref localObstacles);
 
@@ -65,6 +69,9 @@ namespace CorployGame.behaviour.steering
             // Calculating the steering force
             if(ClosestIntersectingObject != null)
             {
+                // Note: these print lines don't appear from bottom aproach, yet still calcualte avoidance vector.
+                Console.WriteLine("Collision");
+                System.Diagnostics.Debug.WriteLine("test debug");
                 // "the closer the agent is to an object, the stronger the steering force should be"
                 double multiplier = 1.0 + (DBoxLength - LocalPosOfClosestObstacle.X) / DBoxLength;
                 steeringForce.Y = (ClosestIntersectingObject.GetRadius() - LocalPosOfClosestObstacle.Y) * multiplier;
@@ -147,7 +154,6 @@ namespace CorployGame.behaviour.steering
 
             // If obstacle is behind Moving Entity, ignore.
             if (obstPos.X <= 0) return;
-
             // If obstacle is way outside of collisionbox Y-axis, ignore.
             // 2* margin because it's for both the Moving entity's width and the margin in which it can collide with edge of obstacle.
             // Check for both positive and negative Y-axis values.(Below horizon, above horizon)
@@ -169,9 +175,11 @@ namespace CorployGame.behaviour.steering
             if(ip <= 0)
             {
                 ip = cX + SqrtPart;
+
+                Console.WriteLine("test");
             }
 
-            //"test to see if this is the closest so far. If it is, keep a record of hte obstacle and its coördinates"
+            //"test to see if this is the closest so far. If it is, keep a record of the obstacle and its coördinates"
             if(ip < DistanceToClosestIP)
             {
                 DistanceToClosestIP = ip;

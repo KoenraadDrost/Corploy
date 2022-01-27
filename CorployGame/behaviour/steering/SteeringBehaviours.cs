@@ -7,20 +7,22 @@ namespace CorployGame.behaviour.steering
 {
     class SteeringBehaviours
     {
+        // Don't confuse this class with the singular 'SeekBehaviour' abstract class.
         // This class serves to consolidate all the steringbehaviours the entity has available and calculate the combined movement force.
         Vehicle Vehicle;
         Vector2D SteeringForce;
-
 
         // Behaviours
         SeekBehaviour Seek;
         ArriveBehaviour Arrive;
         ObstacleAvoidanceBehaviour ObstacleAvoidance;
+        PathFollowingBehaviour PathFollowing;
 
         // Booleans for active behaviours
-        bool SeekIsOn;
-        bool ArriveIsOn;
-        bool ObstacleAvoidanceIsOn;
+        public bool SeekIsOn;
+        public bool ArriveIsOn;
+        public bool ObstacleAvoidanceIsOn;
+        public bool PathFollowingIsOn;
 
         public SteeringBehaviours(Vehicle vehicle)
         {
@@ -29,6 +31,7 @@ namespace CorployGame.behaviour.steering
             SeekIsOn = false;
             ArriveIsOn = false;
             ObstacleAvoidanceIsOn = false;
+            PathFollowingIsOn = false;
         }
 
         public Vector2D Calculate()
@@ -44,8 +47,15 @@ namespace CorployGame.behaviour.steering
 
                 if (!AccumilatedForce(force)) return SteeringForce; // Max Force already reached, no need to try and add more.
             }
-            
-            if(SeekIsOn)
+
+            if (PathFollowingIsOn)
+            {
+                force = PathFollowing.Calculate();
+
+                if (!AccumilatedForce(force)) return SteeringForce; // Max Force already reached, no need to try and add more.
+            }
+
+            if (SeekIsOn)
             {
                 force = Seek.Calculate();
 
@@ -95,31 +105,46 @@ namespace CorployGame.behaviour.steering
 
         public void SetTarget(Vector2D target)
         {
-            if (Seek != null) Seek.UpdateTargetPos(target);
+            if (Seek != null && SeekIsOn) Seek.UpdateTargetPos(target);
+            if (Arrive != null && ArriveIsOn) Arrive.UpdateTargetPos(target);
         }
 
-
+        public void SetPath(List<Vector2D> path)
+        {
+            if (PathFollowing != null && PathFollowingIsOn) PathFollowing.SetPath(path);
+        }
 
         // Add and activate behaviours.
-        public void SeekOn()
+        public SeekBehaviour SeekOn()
         {
-            if (SeekIsOn) return;
+            if (SeekIsOn) return Seek;
             Seek = new SeekBehaviour(Vehicle);
             SeekIsOn = true;
+            return Seek;
         }
 
-        public void ArriveON()
+        public ArriveBehaviour ArriveON()
         {
-            if (ArriveIsOn) return;
+            if (ArriveIsOn) return Arrive;
             Arrive = new ArriveBehaviour(Vehicle);
             ArriveIsOn = true;
+            return Arrive;
         }
 
-        public void ObstacleAvoidanceON()
+        public ObstacleAvoidanceBehaviour ObstacleAvoidanceON()
         {
-            if (ObstacleAvoidanceIsOn) return;
+            if (ObstacleAvoidanceIsOn) return ObstacleAvoidance;
             ObstacleAvoidance = new ObstacleAvoidanceBehaviour(Vehicle);
             ObstacleAvoidanceIsOn = true;
+            return ObstacleAvoidance;
+        }
+
+        public PathFollowingBehaviour PathFollowingON()
+        {
+            if (PathFollowingIsOn) return PathFollowing;
+            PathFollowing = new PathFollowingBehaviour(Vehicle);
+            PathFollowingIsOn = true;
+            return PathFollowing;
         }
 
         // Remove and deactivate behaviours.
@@ -128,6 +153,7 @@ namespace CorployGame.behaviour.steering
             SeekOff();
             ArriveOff();
             ObstacleAvoidanceOff();
+            PathFollowingOff();
         }
 
         public void SeekOff()
@@ -146,6 +172,12 @@ namespace CorployGame.behaviour.steering
         {
             ObstacleAvoidance = null;
             ObstacleAvoidanceIsOn = false;
+        }
+
+        public void PathFollowingOff()
+        {
+            PathFollowing = null;
+            PathFollowingIsOn = false;
         }
     }
 }

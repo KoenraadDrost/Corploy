@@ -18,16 +18,19 @@ namespace CorployGame.behaviour.steering
         // Universal constant factor to calculate all deceleration with.
         double DecelerationFactor = 0.3;
 
-        public ArriveBehaviour(MovingEntity me) : this(me, DecelerationSpeed.normal) { }
-        public ArriveBehaviour(MovingEntity me, DecelerationSpeed ds) : base(me)
+        Vector2D TargetPos; // Ease of reference
+
+        public ArriveBehaviour(Vehicle me) : this(me, DecelerationSpeed.normal, me.Pos) { }
+        public ArriveBehaviour(Vehicle me, DecelerationSpeed ds, Vector2D targetPos) : base(me)
         {
             DecelerationSpd = ds;
+            TargetPos = targetPos;
         }
 
         public override Vector2D Calculate()
         {
             // Get relative position to target
-            Vector2D toTarget = ME.MyWorld.Target.Pos - ME.Pos;
+            Vector2D toTarget = TargetPos - ME.Pos;
 
             // Calculate distance to target
             double dist = toTarget.Length();
@@ -47,6 +50,11 @@ namespace CorployGame.behaviour.steering
 
             // If target has been reached, set velocity to 0;
             return new Vector2D(0, 0);
+        }
+
+        public void UpdateTargetPos(Vector2D targetPos)
+        {
+            TargetPos = targetPos;
         }
     }
 }

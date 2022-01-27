@@ -7,10 +7,10 @@ namespace CorployGame.behaviour.steering
 {
     abstract class SteeringBehaviour
     {
-        public MovingEntity ME { get; set; }
+        public Vehicle ME { get; set; }
         public abstract Vector2D Calculate();
 
-        public SteeringBehaviour(MovingEntity me)
+        public SteeringBehaviour(Vehicle me)
         {
             ME = me;
         }

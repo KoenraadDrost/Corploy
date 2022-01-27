@@ -84,24 +84,42 @@ namespace CorployGame
             List<Node> DijkstraNodes = g.AStar(     start: AllNodes["8_16"],
                                                     end: AllNodes["22_14"]);
 
-            Console.WriteLine("Last node in dijsktraList: " + DijkstraNodes[DijkstraNodes.Count - 1].Pos);
-            Console.WriteLine("missing node is known?: " + AllNodes["22_13"].Known); // Note: Last node before end always seems to be missing. No clue why yet.
+            List<Vector2D> path = new List<Vector2D>();
 
-            foreach (Node n in DijkstraNodes)
+            foreach(Node n in DijkstraNodes)
             {
-                string s = "";
-                s += $"Node ID: {n.iIndex} edgecount: {n.Adj.Count} ";
-                //foreach(Edge e in n.Adj)
-                //{
-                //    s += $" => ( E: {e.iFrom} -> {e.iTo} )";
-                //}
-                Console.WriteLine(s);
-
-                Obstacle ob = new Obstacle(n.Pos, this, new Texture2D(GD, 4, 4));
-                ob.VColor = Color.Green;
-                ob.UpdateTexture();
-                obstacles.Add(ob);
+                path.Add(n.Pos);
             }
+
+            Vehicle v2 = new Vehicle(new Vector2D(50, 50), this, new Texture2D(GD, 16, 16));
+            //v.SBS.SeekOn();
+            //v.SBS.ArriveON();
+            v2.SBS.ObstacleAvoidanceON();
+            v2.SBS.PathFollowingON();
+            v2.SBS.SetPath(path);
+            v2.VColor = Color.Purple;
+            v2.UpdateTexture();
+            entities.Add(v2);
+
+
+            //Console.WriteLine("Last node in dijsktraList: " + DijkstraNodes[DijkstraNodes.Count - 1].Pos);
+            //Console.WriteLine("missing node is known?: " + AllNodes["22_13"].Known); // Note: Last node before end always seems to be missing. No clue why yet.
+
+            //foreach (Node n in DijkstraNodes)
+            //{
+            //    string s = "";
+            //    s += $"Node ID: {n.iIndex} edgecount: {n.Adj.Count} ";
+            //    //foreach(Edge e in n.Adj)
+            //    //{
+            //    //    s += $" => ( E: {e.iFrom} -> {e.iTo} )";
+            //    //}
+            //    Console.WriteLine(s);
+
+            //    Obstacle ob = new Obstacle(n.Pos, this, new Texture2D(GD, 4, 4));
+            //    ob.VColor = Color.Green;
+            //    ob.UpdateTexture();
+            //    obstacles.Add(ob);
+            //}
         }
 
 
