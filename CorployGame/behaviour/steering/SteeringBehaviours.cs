@@ -5,6 +5,14 @@ using System.Text;
 
 namespace CorployGame.behaviour.steering
 {
+    public enum STEERINGBEHAVIOUR
+    {
+        Seek = 1,
+        Arrive = 2,
+        ObstacleAvoidance = 3,
+        PathFollowing = 4
+    }
+
     class SteeringBehaviours
     {
         // Don't confuse this class with the singular 'SeekBehaviour' abstract class.
@@ -115,7 +123,7 @@ namespace CorployGame.behaviour.steering
         }
 
         // Add and activate behaviours.
-        public SeekBehaviour SeekOn()
+        public SeekBehaviour SeekON()
         {
             if (SeekIsOn) return Seek;
             Seek = new SeekBehaviour(Vehicle);
@@ -148,33 +156,33 @@ namespace CorployGame.behaviour.steering
         }
 
         // Remove and deactivate behaviours.
-        public void AllOff()
+        public void AllOFF()
         {
-            SeekOff();
-            ArriveOff();
-            ObstacleAvoidanceOff();
-            PathFollowingOff();
+            SeekOFF();
+            ArriveOFF();
+            ObstacleAvoidanceOFF();
+            PathFollowingOFF();
         }
 
-        public void SeekOff()
+        public void SeekOFF()
         {
             Seek = null;
             SeekIsOn = false;
         }
 
-        public void ArriveOff()
+        public void ArriveOFF()
         {
             Arrive = null;
             ArriveIsOn = false;
         }
 
-        public void ObstacleAvoidanceOff()
+        public void ObstacleAvoidanceOFF()
         {
             ObstacleAvoidance = null;
             ObstacleAvoidanceIsOn = false;
         }
 
-        public void PathFollowingOff()
+        public void PathFollowingOFF()
         {
             PathFollowing = null;
             PathFollowingIsOn = false;

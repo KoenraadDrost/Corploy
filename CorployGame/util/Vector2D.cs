@@ -141,8 +141,8 @@ namespace CorployGame
 
         public Vector2D Normalize()
         {
-            X = X / Length();
-            Y = Y / Length();
+            if(X != 0) X = X / Length(); // prevent divide-by-zero with if-statement.
+            if(Y != 0) Y = Y / Length();
             return this;
         }
 

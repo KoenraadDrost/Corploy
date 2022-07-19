@@ -16,6 +16,9 @@ namespace CorployGame
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private World world;
+
+        private bool worldPaused;
+
         private MouseState oldMState;
         private KeyboardState oldKState;
 
@@ -33,7 +36,7 @@ namespace CorployGame
         {
             // For readability
             int width = StaticParameters.ScreenWidth;
-            int height = StaticParameters.screenHeight;
+            int height = StaticParameters.ScreenHeight;
 
             // This project's MonoGame Version issue: Can't alter window and screen size in constructor.
             _graphics.PreferredBackBufferWidth = width;
@@ -44,6 +47,8 @@ namespace CorployGame
             //winLogoPos = new Vector2(_graphics.PreferredBackBufferWidth / 2,
             //    _graphics.PreferredBackBufferHeight / 2);
             //winLogoSpeed = 100f;
+
+            worldPaused = false;
 
             world = new World(width, height, GraphicsDevice);
             world.Initialize();
@@ -70,9 +75,11 @@ namespace CorployGame
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
             var kstate = Keyboard.GetState();
             var mstate = Mouse.GetState();
+
+            if ( kstate.IsKeyDown(Keys.P) )
+                worldPaused = !worldPaused;
 
             //if (kstate.IsKeyDown(Keys.Up))
             //    winLogoPos.Y -= winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
@@ -86,8 +93,9 @@ namespace CorployGame
             //if (kstate.IsKeyDown(Keys.Right))
             //    winLogoPos.X += winLogoSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
 
-            // Update World
-            world.Update(gameTime);
+            // Update World (if player did not pause the gameworld)
+            if ( !worldPaused )
+                world.Update(gameTime);
 
             // Save latest state for reference.
             oldMState = mstate;
@@ -100,7 +108,6 @@ namespace CorployGame
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
-            // TODO: Add your drawing code here
             //_spriteBatch.Begin();
             //_spriteBatch.Draw(
             //    winLogotexture,

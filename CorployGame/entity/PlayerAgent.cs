@@ -26,7 +26,7 @@ namespace CorployGame.entity
         {
             base.InitializeAvatar();
 
-            Avatar.SBS.SeekOn();
+            Avatar.SBS.SeekON();
             //v.SBS.ArriveON();
             Avatar.SBS.ObstacleAvoidanceON();
             Avatar.SBS.SetTarget(World.Target.Pos);
@@ -57,7 +57,7 @@ namespace CorployGame.entity
                 if(ActiveKeyboardMove)
                 {
                     // If the player is moving using their keyboard, all automized movement is overriden.
-                    Avatar.SBS.AllOff();
+                    Avatar.SBS.AllOFF();
                     // Steering force calcualted based on keyboard controls.
                     Avatar.SteeringForce = CalculateManual();
                 }
@@ -74,7 +74,7 @@ namespace CorployGame.entity
                         Avatar.SBS.SetTarget(World.Target.Pos);
                     }
 
-                    Avatar.SBS.SeekOn();
+                    Avatar.SBS.SeekON();
                     Avatar.SBS.ObstacleAvoidanceON();
                 }
 

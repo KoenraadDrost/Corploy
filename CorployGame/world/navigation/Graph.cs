@@ -55,6 +55,67 @@ namespace CorployGame.world.navigation
             return Math.Abs( (nFrom.Pos - nTo.Pos).Length() );
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="graph"></param>
+        public void GenerateBidirectionalEdges(Dictionary<string, Node> AllNodes)
+        {
+            // Looping in this way to make neighbour selection more convenient.
+            for (int iHor = 1; iHor < StaticParameters.MaxHorizontalNodes; iHor++)
+            {
+                for (int iVer = 1; iVer < StaticParameters.MaxVerticalNodes; iVer++)
+                {
+                    Vector2D tempV = new Vector2D(iHor - 1, iVer - 1);
+                    string nodeKey = $"{iHor}_{iVer}";
+
+                    if (AllNodes[nodeKey].Blocked) continue;
+
+                    // Node is not blocked, so node is usable in the graph.
+                    AddNode(nodeKey, AllNodes[nodeKey]);
+
+                    /// Default neighbours(B), of current Node(N):
+                    /// X X X X X X
+                    /// X B B B X X
+                    /// X B N B X X
+                    /// X B B B X X
+                    /// X X X X X X
+
+                    for (int iH = 0; iH < 2; iH++)
+                    {
+                        for (int iV = 0; iV < 2; iV++)
+                        {
+                            string bKey = $"{tempV.X}_{tempV.Y}";
+
+                            if (bKey == nodeKey)
+                            {
+                                tempV.Y++;
+                                continue; // We don't need an edge that loops back to the same node.
+                            }
+
+                            // If the Node is valid, add new edge.
+                            if (AllNodes.ContainsKey(bKey))
+                            {
+                                Edge e = new Edge(from: nodeKey,
+                                                    to: bKey,
+                                                    cost: CalcEdgeCost(AllNodes[nodeKey],
+                                                                                AllNodes[bKey])
+                                                    );
+                                bool succesA = AllNodes[nodeKey].AddAdjacentEdge(e);
+                                bool succesB = AllNodes[bKey].AddAdjacentEdge(e);
+                                if (!succesA && !succesB) e = null; // To help out the garbage collector a bit.(Though it may not be referenced, it does reference 2 Nodes) Edges that already exist in reverse order are not needed.
+                            }
+
+                            tempV.Y++;
+                        }
+
+                        tempV.X++;
+                    }
+
+                }
+            }
+        }
+
         // --- Graph Algorythms ---
         public List<Node> Dijkstra(Node start, Node end)
         {

@@ -18,11 +18,7 @@ namespace CorployGame.behaviour.steering
 
         public PathFollowingBehaviour(Vehicle me, List<Vector2D> path) : base(me)
         {
-            Path = path;
-            CurrentPoint = 0;
-            LastPoint = Path.Count - 1;
-            Seek = me.SBS.SeekOn();
-            if(path.Count > 0) Seek.UpdateTargetPos(Path[CurrentPoint]);
+            SetPath(path);
             IsPatroling = false;
         }
 
@@ -53,11 +49,11 @@ namespace CorployGame.behaviour.steering
                     }
                     else
                     {
-                        ME.SBS.SeekOff();
+                        ME.SBS.SeekOFF();
                         Seek = null;
-                        ME.SBS.ArriveOff();
+                        ME.SBS.ArriveOFF();
                         Arrive = null;
-                        // Note: Yet to decide if this behaviour should disable itself at end of Path or leave that the class using this Behaviour.
+                        // Note: Yet to decide if this behaviour should disable itself at end of Path or leave that to the class using this Behaviour.
                     }
                 }
                 // If last point is next target.
@@ -70,7 +66,7 @@ namespace CorployGame.behaviour.steering
                     else
                     {
                         // Switch to Arrive.
-                        ME.SBS.SeekOff();
+                        ME.SBS.SeekOFF();
                         Seek = null;
                         Arrive = ME.SBS.ArriveON();
                         Arrive.UpdateTargetPos(Path[LastPoint]);
@@ -93,8 +89,8 @@ namespace CorployGame.behaviour.steering
             Path = newPath;
             CurrentPoint = 0;
             LastPoint = Path.Count - 1;
-            Seek = ME.SBS.SeekOn();
-            Seek.UpdateTargetPos(Path[CurrentPoint]);
+            Seek = ME.SBS.SeekON();
+            if (Path.Count > 0) Seek.UpdateTargetPos(Path[CurrentPoint]);
         }
     }
 }

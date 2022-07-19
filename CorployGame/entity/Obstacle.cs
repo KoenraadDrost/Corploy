@@ -9,10 +9,12 @@ namespace CorployGame.entity
 {
     class Obstacle : BaseGameEntity
     {
-        public bool BlocksNodes;
+        public bool Traversable;
+        public bool CoversNodes;
         public Obstacle(Vector2D pos, World w, Texture2D t) : base(pos, w, t)
         {
-            BlocksNodes = false;
+            Traversable = false;
+            CoversNodes = false;
         }
 
         // copy Constructor
@@ -54,7 +56,7 @@ namespace CorployGame.entity
             );
         }    
 
-        public List<string> GetBlockedNodes()
+        public List<string> GetCoveredNodes()
         {
             Vector2 tc = GetTextureCenter();
             // TopLeft corner
@@ -74,14 +76,22 @@ namespace CorployGame.entity
 
         public void SetBlockedNodes()
         {
-            List<string> nodeIDs = GetBlockedNodes();
+            List<string> nodeIDs = GetCoveredNodes();
             if (nodeIDs != null || nodeIDs.Count < 1) return;
 
-            BlocksNodes = true;
-            foreach(string id in nodeIDs)
+            CoversNodes = true;
+
+            foreach (string id in nodeIDs)
             {
-                MyWorld.AllNodes[id].Blocked = true;
+                MyWorld.AllNodes[id].Blocked = !Traversable; // If the obstacle is not traversable, node is blocked, vice versa.
             }
+        }
+
+        public bool ToggleTraversable()
+        {
+            Traversable = !Traversable;
+            SetBlockedNodes();
+            return Traversable;
         }
     }
 }

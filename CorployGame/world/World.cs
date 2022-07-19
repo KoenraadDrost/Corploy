@@ -29,6 +29,10 @@ namespace CorployGame
 
         public double LastUpdateTime { get; set; }
 
+        // TODO: Clean op test variables
+        // temp test variables
+        AiAgent TestAgent { get; set; }
+
         public World(int w, int h, GraphicsDevice gd)
         {
             AllNodes = new Dictionary<string, Node>();
@@ -48,58 +52,81 @@ namespace CorployGame
 
         public void Populate()
         {
+            LevelGenerator lGen = new LevelGenerator();
+            CurrentLevel = lGen.GenerateLevel(this);
+
             // Entities
+            // Current player target
             Target = new Vehicle(new Vector2D(200, 100), this, new Texture2D(GD, 10, 10));
             Target.VColor = Color.Red;
             Target.UpdateTexture();
 
+            Vector2D playerSpawn = StaticParameters.TopLeftNodePos;
+            playerSpawn.X += StaticParameters.DefaultNodeDistance * 2;
             PlayerEntity = new PlayerAgent(new Vector2D(100, 100), this, new Texture2D(GD, 16, 16));
             PlayerEntity.InitializeAvatar();
 
-            Vehicle v = new Vehicle(new Vector2D(50, 50), this, new Texture2D(GD, 16, 16));
-            v.SBS.SeekOn();
-            //v.SBS.ArriveON();
-            v.SBS.ObstacleAvoidanceON();
-            v.SBS.SetTarget(Target.Pos);
-            v.VColor = Color.Blue;
-            v.UpdateTexture();
-            entities.Add(v);
+            CurrentLevel.Initialize();
+
+            // TODO: Remove test stuff.
+            // Temp test
+            //Vector2D agentSpawn = new Vector2D(600, 400);
+            //Texture2D agentTexture = new Texture2D(GD, 16, 16);
+            //Color aColor = Color.BlanchedAlmond;
+            //Color[] data = new Color[agentTexture.Width * agentTexture.Height];
+            //for (int i = 0; i < (agentTexture.Width * agentTexture.Height); ++i) data[i] = aColor;
+            //agentTexture.SetData<Color>(data);
+
+            //TestAgent = new AiAgent(agentSpawn, this, agentTexture);
+            //TestAgent.Goal = new Vector2D(300, 350);
+            //TestAgent.DefaultSteeringBehaviour = STEERINGBEHAVIOUR.Seek;
+            //TestAgent.ShouldSpawn = true;
+
+
+            //Vehicle v = new Vehicle(new Vector2D(50, 50), this, new Texture2D(GD, 16, 16));
+            //v.SBS.SeekON();
+            ////v.SBS.ArriveON();
+            //v.SBS.ObstacleAvoidanceON();
+            //v.SBS.SetTarget(Target.Pos);
+            //v.VColor = Color.Blue;
+            //v.UpdateTexture();
+            //entities.Add(v);
 
             // Obstacles
-            Obstacle o1 = new Obstacle(new Vector2D(300, 300), this, new Texture2D(GD, 40, 40));
-            o1.VColor = Color.Gray;
-            o1.UpdateTexture();
-            obstacles.Add(o1);
+            //Obstacle o1 = new Obstacle(new Vector2D(300, 300), this, new Texture2D(GD, 40, 40));
+            //o1.VColor = Color.Gray;
+            //o1.UpdateTexture();
+            //obstacles.Add(o1);
 
             //TODO: remove tests
-            List<string> bNodes = o1.GetBlockedNodes();
+            //List<string> bNodes = o1.GetCoveredNodes();
 
-            foreach (string bnode in bNodes)
-            {
-                AllNodes[bnode].Blocked = true;
-            }
+            //foreach (string bnode in bNodes)
+            //{
+            //    AllNodes[bnode].Blocked = true;
+            //}
 
-            Graph g = new Graph();
-            GenerateBidirectionalEdges(g);
-            List<Node> DijkstraNodes = g.AStar(     start: AllNodes["8_16"],
-                                                    end: AllNodes["22_14"]);
+            //Graph g = new Graph();
+            //g.GenerateBidirectionalEdges(AllNodes);
+            //List<Node> DijkstraNodes = g.AStar(     start: AllNodes["8_16"],
+            //                                        end: AllNodes["22_14"]);
 
-            List<Vector2D> path = new List<Vector2D>();
+            //List<Vector2D> path = new List<Vector2D>();
 
-            foreach(Node n in DijkstraNodes)
-            {
-                path.Add(n.Pos);
-            }
+            //foreach(Node n in DijkstraNodes)
+            //{
+            //    path.Add(n.Pos);
+            //}
 
-            Vehicle v2 = new Vehicle(new Vector2D(50, 50), this, new Texture2D(GD, 16, 16));
-            //v.SBS.SeekOn();
-            //v.SBS.ArriveON();
-            v2.SBS.ObstacleAvoidanceON();
-            v2.SBS.PathFollowingON();
-            v2.SBS.SetPath(path);
-            v2.VColor = Color.Purple;
-            v2.UpdateTexture();
-            entities.Add(v2);
+            //Vehicle v2 = new Vehicle(new Vector2D(50, 50), this, new Texture2D(GD, 16, 16));
+            ////v.SBS.SeekOn();
+            ////v.SBS.ArriveON();
+            //v2.SBS.ObstacleAvoidanceON();
+            //v2.SBS.PathFollowingON();
+            //v2.SBS.SetPath(path);
+            //v2.VColor = Color.Purple;
+            //v2.UpdateTexture();
+            //entities.Add(v2);
 
 
             //Console.WriteLine("Last node in dijsktraList: " + DijkstraNodes[DijkstraNodes.Count - 1].Pos);
@@ -136,8 +163,13 @@ namespace CorployGame
                 entities[i].Update((float)ElapsedTime);
             }
 
+            CurrentLevel.Update(gameTime);
+
             // TODO: change the way target works so we don't get this possibility.
             Target.Update((float)ElapsedTime);
+
+            //TODO:  remove test
+            //TestAgent.Update((float)ElapsedTime);
         }
 
         /// <summary>
@@ -160,6 +192,12 @@ namespace CorployGame
             {
                 obstacles[i].Draw(spriteBatch, gameTime);
             }
+
+            CurrentLevel.Draw(spriteBatch, gameTime);
+
+            //TODO:  remove test
+            //Console.WriteLine("TestAgent testprint = " + TestAgent.HasSpawned);
+            //if (TestAgent.HasSpawned) TestAgent.Draw(spriteBatch, gameTime);
         }
 
         /// <summary>
@@ -215,67 +253,6 @@ namespace CorployGame
                                             iVer * StaticParameters.DefaultNodeDistance)    // Pos.Y
                                         )
                     );
-                }
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="graph"></param>
-        private void GenerateBidirectionalEdges(Graph graph)
-        {
-            // Looping in this way to make neighbour selection more convenient.
-            for (int iHor = 1; iHor < StaticParameters.MaxHorizontalNodes; iHor++)
-            {
-                for (int iVer = 1; iVer < StaticParameters.MaxVerticalNodes; iVer++)
-                {
-                    Vector2D tempV = new Vector2D(iHor-1, iVer-1);
-                    string nodeKey = $"{iHor}_{iVer}";
-
-                    if (AllNodes[nodeKey].Blocked) continue;
-
-                    // Node is not blocked, so node is usable in the graph.
-                    graph.AddNode(nodeKey, AllNodes[nodeKey]);
-
-                    /// Default neighbours(B), of current Node(N):
-                    /// X X X X X X
-                    /// X B B B X X
-                    /// X B N B X X
-                    /// X B B B X X
-                    /// X X X X X X
-
-                    for(int iH = 0; iH < 2; iH++)
-                    {
-                        for (int iV = 0; iV < 2; iV++)
-                        {
-                            string bKey = $"{tempV.X}_{tempV.Y}";
-
-                            if (bKey == nodeKey)
-                            {
-                                tempV.Y++;
-                                continue; // We don't need an edge that loops back to the same node.
-                            }
-
-                            // If the Node is valid, add new edge.
-                            if (AllNodes.ContainsKey(bKey))
-                            {
-                                Edge e = new Edge(  from: nodeKey,
-                                                    to: bKey,
-                                                    cost: graph.CalcEdgeCost(   AllNodes[nodeKey],
-                                                                                AllNodes[bKey]  )
-                                                    );
-                                bool succesA = AllNodes[nodeKey].AddAdjacentEdge(e);
-                                bool succesB = AllNodes[bKey].AddAdjacentEdge(e);
-                                if (!succesA && !succesB) e = null; // To help out the garbage collector a bit.(Though it may not be referenced, it does reference 2 Nodes) Edges that already exist in reverse order are not needed.
-                            }
-
-                            tempV.Y++;
-                        }
-
-                        tempV.X++;
-                    }
-                    
                 }
             }
         }
